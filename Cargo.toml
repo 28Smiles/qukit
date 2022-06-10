@@ -1,0 +1,31 @@
+[package]
+name = "qukit"
+version = "0.0.0-pre0"
+edition = "2021"
+
+[lib]
+name = "qukit"
+crate-type = ["cdylib", "rlib"]
+
+[features]
+wasm-pack = [ "serde", "wasm-bindgen", "tsify", "wee_alloc", "console_error_panic_hook", "js-sys", "serde-wasm-bindgen" ]
+default = []
+
+[dependencies]
+libm = "0.2"
+rand = { version = "0.8", default-features = false, features = ["small_rng"] }
+serde = { version = "1.0", features = ["derive"], optional = true }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = true }
+tsify = { version = "0.2", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+wee_alloc = { version = "0.4", optional = true }
+js-sys = { version = "0.3", optional = true }
+serde-wasm-bindgen = { version = "0.4", optional = true }
+
+[dev-dependencies]
+float-cmp = "0.9"
+
+[profile.release]
+codegen-units = 1
+opt-level = 3
+lto = "fat"
