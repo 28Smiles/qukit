@@ -1,3 +1,5 @@
+# /bin/sh
+
 rm -rf dist
 rm -rf pkg.*
 mkdir dist
