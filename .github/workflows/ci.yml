@@ -48,9 +48,8 @@ jobs:
       - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: install
-      - uses: borales/actions-yarn@v3.0.0
-        with:
-          cmd: run build
+      - name: Build Wasm
+        run: ./build.sh
       - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: run test
@@ -89,3 +88,4 @@ jobs:
       - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: run test
+
