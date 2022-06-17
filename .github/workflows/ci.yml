@@ -16,6 +16,7 @@ jobs:
         name: Setup Rust
         with:
           toolchain: nightly
+          override: true
       - uses: actions-rs/cargo@v1
         name: Cargo Build
         with:
@@ -38,6 +39,7 @@ jobs:
         name: Setup Rust
         with:
           toolchain: nightly
+          override: true
       - uses: actions-rs/cargo@v1
         name: Install WasmPack
         with:
