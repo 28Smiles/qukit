@@ -100,7 +100,7 @@ jobs:
       - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: run test
-  crates.io:
+  cratesio:
     runs-on: ubuntu-latest
     needs:
       - wasmpack
