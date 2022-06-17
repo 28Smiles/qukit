@@ -1,6 +1,6 @@
 [package]
 name = "qukit"
-version = "0.0.0-pre0"
+version = "0.0.0-pre1"
 description = "a quantum simulator for rust and wasm"
 repository = "https://github.com/28Smiles/qukit"
 authors = ["Leon Camus <leon.c@gmx.de>"]
@@ -14,7 +14,7 @@ crate-type = ["cdylib", "rlib"]
 [features]
 std = []
 wasm-pack = [ "serde", "wasm-bindgen", "tsify", "wee_alloc", "console_error_panic_hook", "js-sys", "serde-wasm-bindgen" ]
-default = []
+default = [ "std" ]
 
 [dependencies]
 libm = "0.2"
