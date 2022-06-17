@@ -1,4 +1,4 @@
-const {QuantumAlgorithm, QuantumComputer} = require("../pkg");
+const {QuantumAlgorithm, QuantumComputer} = require("../pkg.node/qukit");
 
 test('test hadamard', () => {
     const computer = new QuantumComputer(2);

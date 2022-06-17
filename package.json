@@ -1,11 +1,38 @@
 {
-  "name": "quanta-wasm",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "name": "qukit",
+  "version": "0.0.0-pre0",
+  "main": "./pkg.node/brotli_wasm.js",
+  "types": "./pkg.node/brotli_wasm.d.ts",
+  "browser": "./index.browser.js",
+  "sideEffects": false,
+  "files": [
+    "pkg.node",
+    "pkg.bundler",
+    "pkg.web",
+    "pkg.dist",
+    "pkg.web",
+    "pkg.dist",
+    "index.browser.js"
+  ],
   "scripts": {
+    "build": "build.sh",
     "test": "jest"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/28Smiles/qukit.git"
+  },
+  "keywords": [
+    "quantum",
+    "wasm",
+    "simulation"
+  ],
+  "author": "Leon Camus <leon.c@gmx.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/28Smiles/qukit/issues"
+  },
+  "homepage": "https://github.com/28Smiles/qukit#readme",
   "devDependencies": {
     "@types/jest": "^28.1.1",
     "jest": "^28.1.1",

@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone
+      - uses: actions-rs/toolchain@v1
+        name: Setup Rust
+        with:
+          toolchain: nightly
+      - uses: actions-rs/cargo@v1
+        name: Cargo Build
+        with:
+          command: build
+          args: --verbose --features std
+      - uses: actions-rs/cargo@v1
+        name: Cargo Test
+        with:
+          command: test
+          args: --verbose --features std
+  wasmpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+      - uses: actions-rs/toolchain@v1
+        name: Setup Rust
+        with:
+          toolchain: nightly
+      - uses: actions-rs/cargo@v1
+        name: Install WasmPack
+        with:
+          command: install
+          args: wasm-pack
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: install
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: run build
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: run test
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pkg
+          path: |
+            pkg.bundler/
+            pkg.dist/
+            pkg.node/
+            pkg.web/
+            package.json
+            index.browser.js
+            LICENCE
+            README.md
+  js-test:
+    runs-on: ubuntu-latest
+    needs:
+      - wasmpack
+      - rust-test
+    strategy:
+      matrix:
+        node-version: [ 10.x, 12.x, v14.18.3, 14.x, 16.x, 18.x, '*' ]
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone
+      - uses: actions/download-artifact@master
+        with:
+          name: pkg
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: install
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: run test
