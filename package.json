@@ -10,8 +10,6 @@
     "pkg.bundler",
     "pkg.web",
     "pkg.dist",
-    "pkg.web",
-    "pkg.dist",
     "index.browser.js"
   ],
   "scripts": {
