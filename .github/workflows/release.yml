@@ -3,6 +3,7 @@ name: Release
 env:
   CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  CARGO_TERM_COLOR: always
 
 on:
   create:
@@ -14,6 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         name: Clone
+      - uses: actions/cache@v3
+        name: Cache Cargo Registry
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: actions-rs/toolchain@v1
         name: Setup Rust
         with:
@@ -29,101 +39,180 @@ jobs:
         with:
           command: test
           args: --verbose --features std
-      - name: Cache Cargo Registry
-        uses: actions/cache@v1
+  js-pretest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone
+      - uses: actions/cache@v3
+        name: Cache Cargo Registry
         with:
-          path: ~/.cargo/registry
-          key: ubuntu-latest-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        name: Setup Rust
+        with:
+          toolchain: nightly
+          override: true
+      - uses: jetli/wasm-pack-action@v0.3.0
+        name: Install WasmPack
+        with:
+          version: 'latest'
+      - name: Build Wasm
+        run: |
+          wasm-pack build --target nodejs -- --features wasm-pack --no-default-features
+          rm pkg/{package.json,README.md,.gitignore}
+      - uses: actions/upload-artifact@v2
+        name: Upload Artifacts
+        with:
+          name: pretest
+          path: pkg
   js-test:
     runs-on: ubuntu-latest
     needs:
       - rs-test
+      - js-pretest
     strategy:
       matrix:
-        node-version: [ 10.x, 12.x, v14.18.3, 14.x, 16.x, 18.x, '*' ]
+        node-version: [ v14.18.3, 14.x, 16.x, 18.x, "*" ]
     steps:
       - uses: actions/checkout@v2
         name: Clone
-      - uses: actions-rs/toolchain@v1
-        name: Setup Rust
+      - uses: actions/download-artifact@master
         with:
-          toolchain: nightly
-          override: true
-      - uses: actions-rs/cargo@v1
-        name: Install WasmPack
+          name: pretest
+          path: pkg
+      - uses: actions/cache@v3
+        name: Cache Cargo Registry
         with:
-          command: install
-          args: wasm-pack
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: actions/setup-node@v1
         name: Setup Node ${{ matrix.node-version }}
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: borales/actions-yarn@v3.0.0
-        name: Install npm dependencies
+      - name: Install Yarn
+        if: matrix.node-version == 'v14.18.3'
+        run: npm i -g corepack
+      - name: Install Yarn
+        if: matrix.node-version == '14.x' || matrix.node-version == '16.x' || matrix.node-version == '18.x' || matrix.node-version == '*'
+        run: corepack enable
+      - uses: actions/cache@v3
+        name: Cache Yarn
         with:
-          cmd: install
-      - uses: borales/actions-yarn@v3.0.0
-        name: Run Jest Tests
-        with:
-          cmd: run test
-      - name: Cache Cargo Registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ubuntu-latest-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+          path: |
+            .yarn/
+            node_modules/
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+      - name: Install npm dependencies
+        run: yarn install
+      - name: Run Jest Tests
+        run: yarn run test:wasm
   assemble:
     runs-on: ubuntu-latest
     needs:
       - js-test
+    strategy:
+      matrix:
+        package-type: [ "nodejs", "bundler", "web" ]
     steps:
       - uses: actions/checkout@v2
         name: Clone
+      - uses: actions/cache@v3
+        name: Cache Cargo Registry
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: actions/setup-node@v1
         name: Setup Node
         with:
           node-version: 18.x
+      - name: Enable Yarn
+        run: corepack enable
+      - uses: actions/cache@v3
+        name: Cache Yarn
+        with:
+          path: |
+            .yarn/
+            node_modules/
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
       - uses: actions-rs/toolchain@v1
         name: Setup Rust
         with:
           toolchain: nightly
           override: true
-      - uses: actions-rs/cargo@v1
+      - uses: jetli/wasm-pack-action@v0.3.0
         name: Install WasmPack
         with:
-          command: install
-          args: wasm-pack
-      - uses: borales/actions-yarn@v3.0.0
-        name: Install npm dependencies
+          version: 'latest'
+      - name: Install npm dependencies
+        run: yarn install
+      - name: Build Wasm
+        run: |
+          wasm-pack build --target ${{ matrix.package-type }} -- --features wasm-pack --no-default-features
+          rm pkg/{package.json,README.md,.gitignore}
+      - name: Build Ts
+        run: yarn run build:ts:${{ matrix.package-type }}
+      - name: Assemble
+        run: yarn run build:assemble:${{ matrix.package-type }}
+      - uses: actions/upload-artifact@v2
+        name: Upload Artifacts
         with:
-          cmd: install
-      - uses: borales/actions-yarn@v3.0.0
-        name: Build
+          name: pkg-${{ matrix.package-type }}
+          path: pkg.${{ matrix.package-type }}
+  create-pkg:
+    runs-on: ubuntu-latest
+    needs:
+      - assemble
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone
+      - uses: actions/download-artifact@master
         with:
-          cmd: run build
+          name: pkg-nodejs
+          path: pkg.nodejs
+      - uses: actions/download-artifact@master
+        with:
+          name: pkg-bundler
+          path: pkg.bundler
+      - uses: actions/download-artifact@master
+        with:
+          name: pkg-web
+          path: pkg.web
       - uses: actions/upload-artifact@v2
         name: Upload Artifacts
         with:
           name: pkg
           path: |
             pkg.bundler/
-            pkg.node/
+            pkg.nodejs/
             pkg.web/
             package.json
             index.browser.js
             LICENCE
             README.md
-      - name: Cache Cargo Registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ubuntu-latest-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
   js-test-integration:
     runs-on: ubuntu-latest
     needs:
-      - assemble
+      - create-pkg
     strategy:
       matrix:
-        node-version: [ 10.x, 12.x, v14.18.3, 14.x, 16.x, 18.x, '*' ]
+        node-version: [ v14.18.3, 14.x, 16.x, 18.x, '*' ]
     steps:
       - uses: actions/checkout@v2
         name: Clone
@@ -134,14 +223,23 @@ jobs:
         name: Setup Node ${{ matrix.node-version }}
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: borales/actions-yarn@v3.0.0
-        name: Install npm dependencies
+      - name: Install Yarn
+        if: matrix.node-version == 'v14.18.3'
+        run: npm i -g corepack
+      - name: Install Yarn
+        if: matrix.node-version == '14.x' || matrix.node-version == '16.x' || matrix.node-version == '18.x' || matrix.node-version == '*'
+        run: corepack enable
+      - uses: actions/cache@v3
+        name: Cache Yarn
         with:
-          cmd: install
-      - uses: borales/actions-yarn@v3.0.0
-        name: Run Jest Tests
-        with:
-          cmd: run test:integration
+          path: |
+            .yarn/
+            node_modules/
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+      - name: Install npm dependencies
+        run: yarn install
+      - name: Run Jest Tests
+        run: yarn run test:integration
   cratesio:
     runs-on: ubuntu-latest
     needs:
@@ -152,16 +250,21 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: pkg
+      - uses: actions/cache@v3
+        name: Cache Cargo Registry
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: actions-rs/toolchain@v1
         name: Setup Rust
         with:
           toolchain: nightly
           override: true
-      - name: Cache Cargo Registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ubuntu-latest-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
       - name: Publish package to Crates.IO
         run: cargo publish --token ${CRATES_TOKEN}
   npm:
@@ -174,6 +277,17 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: pkg
+      - uses: borales/actions-yarn@v3.0.0
+        name: Set Yarn Cache Folder
+        with:
+          cmd: config set cache-folder ~/.yarn/
+      - uses: actions/cache@v3
+        name: Cache Yarn
+        with:
+          path: |
+            .yarn/
+            node_modules/
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
       - uses: actions/setup-node@v1
         with:
           node-version: 18.x

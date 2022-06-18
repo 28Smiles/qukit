@@ -5,8 +5,15 @@
 /node_modules
 /pkg
 /pkg.bundler
-/pkg.node
+/pkg.nodejs
 /pkg.dist
 /pkg.web
 /dist
 /package
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
