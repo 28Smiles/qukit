@@ -7,7 +7,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  rust-test:
+  rs-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,12 +27,57 @@ jobs:
         with:
           command: test
           args: --verbose --features std
-  wasmpack:
+      - name: Cache Cargo Registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ubuntu-latest-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+  js-test:
     runs-on: ubuntu-latest
+    needs:
+      - rs-test
+    strategy:
+      matrix:
+        node-version: [ 10.x, 12.x, v14.18.3, 14.x, 16.x, 18.x, '*' ]
+    steps:
+      - uses: actions/checkout@v2
+        name: Clone
+      - uses: actions-rs/toolchain@v1
+        name: Setup Rust
+        with:
+          toolchain: nightly
+          override: true
+      - uses: actions-rs/cargo@v1
+        name: Install WasmPack
+        with:
+          command: install
+          args: wasm-pack
+      - uses: actions/setup-node@v1
+        name: Setup Node ${{ matrix.node-version }}
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: borales/actions-yarn@v3.0.0
+        name: Install npm dependencies
+        with:
+          cmd: install
+      - uses: borales/actions-yarn@v3.0.0
+        name: Run Jest Tests
+        with:
+          cmd: run test
+      - name: Cache Cargo Registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ubuntu-latest-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+  assemble:
+    runs-on: ubuntu-latest
+    needs:
+      - js-test
     steps:
       - uses: actions/checkout@v2
         name: Clone
       - uses: actions/setup-node@v1
+        name: Setup Node
         with:
           node-version: 18.x
       - uses: actions-rs/toolchain@v1
@@ -46,30 +91,34 @@ jobs:
           command: install
           args: wasm-pack
       - uses: borales/actions-yarn@v3.0.0
+        name: Install npm dependencies
         with:
           cmd: install
-      - name: Build Wasm
-        run: ./build.sh
       - uses: borales/actions-yarn@v3.0.0
+        name: Build
         with:
-          cmd: run test
+          cmd: run build
       - uses: actions/upload-artifact@v2
+        name: Upload Artifacts
         with:
           name: pkg
           path: |
             pkg.bundler/
-            pkg.dist/
             pkg.node/
             pkg.web/
             package.json
             index.browser.js
             LICENCE
             README.md
-  js-test:
+      - name: Cache Cargo Registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ubuntu-latest-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+  js-test-integration:
     runs-on: ubuntu-latest
     needs:
-      - wasmpack
-      - rust-test
+      - assemble
     strategy:
       matrix:
         node-version: [ 10.x, 12.x, v14.18.3, 14.x, 16.x, 18.x, '*' ]
@@ -80,12 +129,14 @@ jobs:
         with:
           name: pkg
       - uses: actions/setup-node@v1
+        name: Setup Node ${{ matrix.node-version }}
         with:
           node-version: ${{ matrix.node-version }}
       - uses: borales/actions-yarn@v3.0.0
+        name: Install npm dependencies
         with:
           cmd: install
       - uses: borales/actions-yarn@v3.0.0
+        name: Run Jest Tests
         with:
-          cmd: run test
-
+          cmd: run test:integration

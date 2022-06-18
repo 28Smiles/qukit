@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "removeComments": true,
+    "sourceMap": false,
+    "lib": [
+      "ES6",
+      "dom"
+    ],
+    "module": "ES6",
+    "moduleResolution": "node",
+    "target": "ES6",
+    "declaration": true,
+    "outDir": "dist",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "paths": {
+      "@/pkg/qukit": ["./pkg/qukit"],
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "lib/**/*.ts"
+  ]
+}

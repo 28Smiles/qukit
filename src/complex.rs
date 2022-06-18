@@ -79,11 +79,10 @@ impl Complex {
 
     #[inline(always)]
     pub fn abs(self) -> f64 {
-        let a = self.re() * self.re() + self.im() * self.im();
-
-        libm::sqrt(a)
+        libm::sqrt(self.amplitude())
     }
 
+    #[inline(always)]
     pub fn amplitude(self) -> f64 {
         self.re() * self.re() + self.im() * self.im()
     }

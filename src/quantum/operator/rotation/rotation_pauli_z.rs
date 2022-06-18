@@ -21,18 +21,18 @@ use tsify::Tsify;
 #[derive(Copy, Clone, PartialEq)]
 pub struct RotationPauliZ {
     wire: u32,
-    phi: f64,
+    theta: f64,
 }
 
 impl RotationPauliZ {
-    pub fn new(wire: u32, phi: f64) -> RotationPauliZ {
-        RotationPauliZ { wire, phi }
+    pub fn new(wire: u32, theta: f64) -> RotationPauliZ {
+        RotationPauliZ { wire, theta }
     }
 }
 
 impl ToGate<1> for RotationPauliZ {
     fn to_gate(&self) -> Gate<1> {
-        rpy(self.phi)
+        rpy(self.theta)
     }
 }
 
@@ -50,8 +50,8 @@ impl ApplyGate<1> for RotationPauliZ {
 
 impl Parameterized<1> for RotationPauliZ {
     fn parameterized(&self) -> fn(&RotationPauliZ, f64) -> Gate<1> {
-        fn create_parameterized(g: &RotationPauliZ, phi: f64) -> Gate<1> {
-            RotationPauliZ::new(g.wire, g.phi / PI * phi).to_gate()
+        fn create_parameterized(g: &RotationPauliZ, theta: f64) -> Gate<1> {
+            RotationPauliZ::new(g.wire, g.theta / PI * theta).to_gate()
         }
 
         create_parameterized

@@ -1,10 +1,10 @@
-const {QuantumAlgorithm, QuantumComputer} = require("../pkg.node/qukit");
+const {QuantumAlgorithm, QuantumComputer} = require("../../pkg/qukit");
 
 test('test hadamard', () => {
     const computer = new QuantumComputer(2);
     const algorithm = new QuantumAlgorithm([
-        { position: 0, gate: { type: "h", wire: 0 } },
-        { position: 0, gate: { type: "h", wire: 1 } },
+        { position: 0, gate: { type: "Hadamard", wire: 0 } },
+        { position: 0, gate: { type: "Hadamard", wire: 1 } },
     ]);
     algorithm.apply(computer);
     const state0 = computer.state();
@@ -31,8 +31,8 @@ test('test hadamard', () => {
 test('test bell', () => {
     const computer = new QuantumComputer(2);
     const algorithm = new QuantumAlgorithm([
-        { position: 0, gate: { type: "h", wire: 0 } },
-        { position: 1, gate: { type: "cx", wire: 0, transformation: { wire: 1 } } },
+        { position: 0, gate: { type: "Hadamard", wire: 0 } },
+        { position: 1, gate: { type: "ControlledPauliX", wire: 0, transformation: { wire: 1 } } },
     ]);
     algorithm.apply(computer);
     const state0 = computer.state();
@@ -59,7 +59,7 @@ test('test bell', () => {
 test('test steps', () => {
     const computer = new QuantumComputer(1);
     const algorithm = new QuantumAlgorithm([
-        { position: 0, gate: { type: "h", wire: 0 } },
+        { position: 0, gate: { type: "Hadamard", wire: 0 } },
     ], 8);
 
     for (let i = 0; i < 7; i++) {

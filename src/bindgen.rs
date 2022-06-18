@@ -28,17 +28,17 @@ impl QuantumComputer {
         serde_wasm_bindgen::to_value(self.0.state()).unwrap().unchecked_into()
     }
 
-    /// Returns the probabillity of all states
+    /// Returns the probability of all states
     pub fn amplitudes(&self) -> Float64Array {
         Float64Array::from(self.0.amplitudes().as_slice())
     }
 
-    /// Returns the probalillites of each qbit
-    pub fn probalillites(&self) -> Float64Array {
-        Float64Array::from(self.0.probalillites().as_slice())
+    /// Returns the probabilities of each qbit
+    pub fn probabilities(&self) -> Float64Array {
+        Float64Array::from(self.0.probabilities().as_slice())
     }
 
-    /// Returns the proballily of a qbit
+    /// Returns the probability of a qbit
     pub fn probability(&self, bit: u32) -> f64 {
         self.0.probability(bit)
     }

@@ -151,8 +151,8 @@ mod tests {
     fn test_algorithm() {
         let mut algorithm = QuantumAlgorithm::new(
             Vec::from([
-                AlgorithmGate::new(0, OperatorType::Simple(Simple::H(Hadamard::new(0)))),
-                AlgorithmGate::new(1, OperatorType::Simple(Simple::H(Hadamard::new(0)))),
+                AlgorithmGate::new(0, OperatorType::Simple(Simple::Hadamard(Hadamard::new(0)))),
+                AlgorithmGate::new(1, OperatorType::Simple(Simple::Hadamard(Hadamard::new(0)))),
             ]),
             Some(256),
         );
@@ -175,8 +175,8 @@ mod tests {
     fn test_algorithm_full() {
         let mut algorithm = QuantumAlgorithm::new(
             Vec::from([
-                AlgorithmGate::new(0, OperatorType::Simple(Simple::H(Hadamard::new(0)))),
-                AlgorithmGate::new(1, OperatorType::Simple(Simple::H(Hadamard::new(0)))),
+                AlgorithmGate::new(0, OperatorType::Simple(Simple::Hadamard(Hadamard::new(0)))),
+                AlgorithmGate::new(1, OperatorType::Simple(Simple::Hadamard(Hadamard::new(0)))),
             ]),
             None,
         );

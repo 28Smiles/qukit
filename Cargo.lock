@@ -160,7 +160,7 @@ dependencies = [
 
 [[package]]
 name = "qukit"
-version = "0.0.0-pre1"
+version = "0.0.0-pre2"
 dependencies = [
  "console_error_panic_hook",
  "float-cmp",
@@ -277,8 +277,7 @@ dependencies = [
 [[package]]
 name = "tsify"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6deedfc97a06fe86a41376d1c6547172b66cdc578e90c508150afae4e4de76c4"
+source = "git+https://github.com/28Smiles/tsify?rev=ea87fda#ea87fdadcdd87cef5fb036cfc2d257224c87b966"
 dependencies = [
  "tsify-macros",
  "wasm-bindgen",
@@ -287,8 +286,7 @@ dependencies = [
 [[package]]
 name = "tsify-macros"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c1efd0fa961ca3f4216282738a4f37299e04c9946b56e69de734817fc0054b0"
+source = "git+https://github.com/28Smiles/tsify?rev=ea87fda#ea87fdadcdd87cef5fb036cfc2d257224c87b966"
 dependencies = [
  "darling",
  "proc-macro2",

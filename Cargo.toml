@@ -1,6 +1,6 @@
 [package]
 name = "qukit"
-version = "0.0.0-pre1"
+version = "0.0.0-pre2"
 description = "a quantum simulator for rust and wasm"
 repository = "https://github.com/28Smiles/qukit"
 authors = ["Leon Camus <leon.c@gmx.de>"]
@@ -21,7 +21,8 @@ libm = "0.2"
 rand = { version = "0.8", default-features = false, features = ["small_rng"] }
 serde = { version = "1.0", features = ["derive"], optional = true }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = true }
-tsify = { version = "0.2", optional = true }
+#tsify = { version = "0.2", optional = true }
+tsify = { git = "https://github.com/28Smiles/tsify", rev = "ea87fda", optional = true }
 console_error_panic_hook = { version = "0.1", optional = true }
 wee_alloc = { version = "0.4", optional = true }
 js-sys = { version = "0.3", optional = true }

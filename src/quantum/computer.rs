@@ -26,7 +26,7 @@ impl QuantumComputer {
         self.state.vec.iter().map(|c| c.amplitude()).collect::<Vec<f64>>()
     }
 
-    pub fn probalillites(&self) -> Vec<f64> {
+    pub fn probabilities(&self) -> Vec<f64> {
         let mut probalillites = vec![0.0; self.state.size as usize];
         for state_id in 0..self.state.vec.len() {
             for bit_id in 0..self.state.size {

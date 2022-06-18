@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": [
+      "ES6",
+      "dom"
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "target": "ES6",
+    "declaration": true,
+    "outDir": "dist",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "paths": {
+      "@/pkg/qukit": ["./pkg/qukit"],
+      "@/*": ["./lib/*"]
+    }
+  },
+  "include": [
+    "./lib/**/*.ts"
+  ]
+}

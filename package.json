@@ -1,20 +1,39 @@
 {
   "name": "qukit",
-  "version": "0.0.0-pre1",
-  "main": "./pkg.node/brotli_wasm.js",
-  "types": "./pkg.node/brotli_wasm.d.ts",
+  "version": "0.0.0-pre2",
+  "main": "./pkg.node/index.js",
+  "types": "./pkg.node/index.d.ts",
   "browser": "./index.browser.js",
   "sideEffects": false,
   "files": [
     "pkg.node",
     "pkg.bundler",
     "pkg.web",
-    "pkg.dist",
-    "index.browser.js"
+    "index.browser.js",
+    "README.md",
+    "LICENCE"
   ],
   "scripts": {
-    "build": "build.sh",
-    "test": "jest"
+    "build:wasm:node": "rm -rf pkg && wasm-pack build --target nodejs -- --features wasm-pack --no-default-features && rm pkg/{package.json,README.md,.gitignore}",
+    "build:ts:node": "rm -rf dist && tsc --project tsconfig.node.json",
+    "build:assemble:node": "rm -rf pkg.node && mkdir pkg.node && mv dist/* pkg.node && mv pkg pkg.node/pkg && cp tsconfig.dist.json ./pkg.node/tsconfig.json && tscpaths -p ./pkg.node/tsconfig.json -s ./pkg.node -o ./pkg.node && rm ./pkg.node/tsconfig.json",
+    "build:node": "yarn run build:wasm:node && yarn run build:ts:node && yarn run build:assemble:node",
+
+    "build:wasm:bundler": "rm -rf pkg && wasm-pack build --target bundler -- --features wasm-pack --no-default-features && rm pkg/{package.json,README.md,.gitignore}",
+    "build:ts:bundler": "rm -rf dist && tsc --project tsconfig.json",
+    "build:assemble:bundler": "rm -rf pkg.bundler && mkdir pkg.bundler && mv dist/* pkg.bundler && mv pkg pkg.bundler/pkg && cp tsconfig.dist.json ./pkg.bundler/tsconfig.json && tscpaths -p ./pkg.bundler/tsconfig.json -s ./pkg.bundler -o ./pkg.bundler && rm ./pkg.bundler/tsconfig.json",
+    "build:bundler": "yarn run build:wasm:bundler && yarn run build:ts:bundler && yarn run build:assemble:bundler",
+
+    "build:wasm:web": "rm -rf pkg && wasm-pack build --target web -- --features wasm-pack --no-default-features && rm pkg/{package.json,README.md,.gitignore}",
+    "build:ts:web": "rm -rf dist && tsc --project tsconfig.json",
+    "build:assemble:web": "rm -rf pkg.web && mkdir pkg.web && mv dist/* pkg.web && mv pkg pkg.web/pkg && cp tsconfig.dist.json ./pkg.web/tsconfig.json && tscpaths -p ./pkg.web/tsconfig.json -s ./pkg.web -o ./pkg.web && rm ./pkg.web/tsconfig.json",
+    "build:web": "yarn run build:wasm:web && yarn run build:ts:web && yarn run build:assemble:web",
+
+    "build": "yarn run build:node && yarn run build:bundler && yarn run build:web",
+
+    "pretest": "rm -rf pkg && wasm-pack build --target nodejs -- --features wasm-pack --no-default-features",
+    "test": "jest test/wasm/*",
+    "test:integration": "jest test/integration/*"
   },
   "repository": {
     "type": "git",
@@ -34,6 +53,14 @@
   "devDependencies": {
     "@types/jest": "^28.1.1",
     "jest": "^28.1.1",
-    "ts-jest": "^28.0.5"
+    "ts-jest": "^28.0.5",
+    "tscpaths": "^0.0.9",
+    "typescript": "^4.7.4"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest",
+      "^.+\\.tsx?$": "ts-jest"
+    }
   }
 }

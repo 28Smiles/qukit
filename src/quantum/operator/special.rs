@@ -10,9 +10,8 @@ pub mod reset;
 use tsify::Tsify;
 
 #[cfg_attr(feature = "wasm-pack", derive(Tsify))]
-#[cfg_attr(feature = "wasm-pack", tsify(from_wasm_abi))]
+#[cfg_attr(feature = "wasm-pack", tsify(from_wasm_abi, enum_reimport_module))]
 #[cfg_attr(feature = "wasm-pack", derive(serde::Deserialize))]
-#[cfg_attr(feature = "wasm-pack", serde(rename_all = "lowercase"))]
 #[cfg_attr(feature = "wasm-pack", serde(tag = "type"))]
 #[derive(Copy, Clone, PartialEq)]
 pub enum Special {

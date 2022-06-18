@@ -14,7 +14,6 @@ use tsify::Tsify;
 #[cfg_attr(feature = "wasm-pack", derive(Tsify))]
 #[cfg_attr(feature = "wasm-pack", tsify(from_wasm_abi))]
 #[cfg_attr(feature = "wasm-pack", derive(serde::Deserialize))]
-#[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 struct DGateDefinition(Vec<Complex>);
 
 impl TryFrom<DGateDefinition> for DGate {
