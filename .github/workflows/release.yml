@@ -324,5 +324,5 @@ jobs:
           files: |
             qukit.zip
             qukit.tar.gz
-            LICENSE
+            LICENCE
             README.md
