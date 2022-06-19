@@ -277,10 +277,12 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: pkg
-      - uses: borales/actions-yarn@v3.0.0
-        name: Set Yarn Cache Folder
+      - uses: actions/setup-node@v1
+        name: Setup Node
         with:
-          cmd: config set cache-folder ~/.yarn/
+          node-version: 18.x
+      - name: Enable Yarn
+        run: corepack enable
       - uses: actions/cache@v3
         name: Cache Yarn
         with:
@@ -288,9 +290,8 @@ jobs:
             .yarn/
             node_modules/
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 18.x
+      - name: Install npm dependencies
+        run: yarn install
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
@@ -307,8 +308,8 @@ jobs:
           name: pkg
       - name: Pack Artifacts
         run: |
-          zip -r qukit.zip pkg.node pkg.bundler pkg.web index.browser.js package.json README.md LICENCE
-          tar -cvzf qukit.tar.gz pkg.node pkg.bundler pkg.web index.browser.js package.json README.md LICENCE
+          zip -r qukit.zip pkg.nodejs pkg.bundler pkg.web index.browser.js package.json README.md LICENCE
+          tar -cvzf qukit.tar.gz pkg.nodejs pkg.bundler pkg.web index.browser.js package.json README.md LICENCE
       - name: Extract Tag Last
         id: prerelease
         uses: actions/github-script@0.2.0
