@@ -1,4 +1,12 @@
-import {AlgorithmGate, Controlled, Hadamard, PauliX, QuantumAlgorithm, QuantumComputer} from "../../";
+import {
+    AlgorithmGate,
+    Controlled,
+    Hadamard,
+    PauliX,
+    PauliZ,
+    QuantumAlgorithm,
+    QuantumComputer
+} from "../../";
 
 test('test hadamard', () => {
     const computer = new QuantumComputer(2);
@@ -86,4 +94,52 @@ test('test error', () => {
     expect(() => new QuantumAlgorithm([
         {} as unknown as AlgorithmGate,
     ], 8)).toThrowError();
+});
+
+function bvAlgorithm(hidden: boolean[]) {
+    const computer = new QuantumComputer(hidden.length + 1);
+    const algorithm = new QuantumAlgorithm([
+        ...hidden.map((_, index) => new Hadamard(index)),
+        new Hadamard(hidden.length),
+        new PauliZ(hidden.length),
+
+        ...hidden.map((v, index) =>
+            v ? new Controlled(index, new PauliX(hidden.length)) : undefined
+        ).filter(value => value !== undefined) as Controlled<PauliX>[],
+
+        ...hidden.map((_, index) => new Hadamard(index)),
+        //...hidden.split("").map((_, index) => new Measurement(index, "X")),
+    ].map((v, index) => new AlgorithmGate(v, index)), 1);
+    algorithm.run(computer);
+    const state = computer.probabilities();
+    for (let index = 0; index < hidden.length; index++) {
+        const exp = hidden[index];
+        const prob = state[index];
+        if (exp) {
+            expect(prob).toBeCloseTo(1, 0.00001);
+        } else {
+            expect(prob).toBeCloseTo(0, 0.00001);
+        }
+    }
+}
+
+test.skip('test large', () => {
+    bvAlgorithm([
+        true, true, false, true, false, true, true, false,
+        true, false, true, true, false, true, false
+    ]);
+});
+
+test('test med bv', () => {
+    bvAlgorithm([
+        true, true, false, true, false, true, true, false,
+        true, false, true, true, false, true, false
+    ]);
+});
+
+test('test small bv', () => {
+    bvAlgorithm([
+        true, true, false, true, false, true, true, false,
+        true, false, true, true, false, true, false
+    ]);
 });

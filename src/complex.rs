@@ -94,6 +94,12 @@ impl Display for Complex {
     }
 }
 
+impl Default for Complex {
+    fn default() -> Self {
+        Complex::zero()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::complex::Complex;

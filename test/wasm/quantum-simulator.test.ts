@@ -87,3 +87,61 @@ test('test error', () => {
         {type: "ch", wire: 0},
     ], 8)).toThrowError();
 });
+
+function bvAlgorithm(hidden: boolean[]) {
+    const computer = new QuantumComputer(hidden.length + 1);
+    const algorithm = new QuantumAlgorithm([
+        ...hidden.map((_, index) => ({ type: "Hadamard", wire: index })),
+        { type: "Hadamard", wire: hidden.length },
+        { type: "PauliZ", wire: hidden.length },
+
+        ...hidden.map((v, index) =>
+            v ? {
+                type: "ControlledPauliX",
+                wire: index,
+                transformation: {
+                    type: "PauliX",
+                    wire: hidden.length,
+                },
+            } : undefined
+        ).filter(value => value !== undefined),
+
+        ...hidden.map((_, index) => ({ type: "Hadamard", wire: index })),
+        //...hidden.split("").map((_, index) => new Measurement(index, "X")),
+    ].map((v, index) => ({
+        position: index,
+        gate: v,
+    })), 1);
+    algorithm.run(computer);
+    const state = computer.probabilities();
+    for (let index = 0; index < hidden.length; index++) {
+        const exp = hidden[index];
+        const prob = state[index];
+        if (exp) {
+            expect(prob).toBeCloseTo(1, 0.00001);
+        } else {
+            expect(prob).toBeCloseTo(0, 0.00001);
+        }
+    }
+}
+
+test.skip('test large', () => {
+    bvAlgorithm([
+        true, true, false, true, false, true, true, false,
+        true, false, true, true, false, true, false
+    ]);
+});
+
+test('test med bv', () => {
+    bvAlgorithm([
+        true, true, false, true, false, true, true, false,
+        true, false, true, true, false, true, false
+    ]);
+});
+
+test('test small bv', () => {
+    bvAlgorithm([
+        true, true, false, true, false, true, true, false,
+        true, false, true, true, false, true, false
+    ]);
+});

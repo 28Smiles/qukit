@@ -3,6 +3,9 @@ use js_sys::Float64Array;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
+#[cfg(feature = "wasm-bindgen-rayon")]
+pub use wasm_bindgen_rayon::init_thread_pool;
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(typescript_type = "Complex[]")]
@@ -19,7 +22,10 @@ pub struct QuantumComputer(crate::quantum::computer::QuantumComputer);
 impl QuantumComputer {
     /// Creates a new quantum computer instance
     #[wasm_bindgen(constructor)]
-    pub fn new(q_bits: u32, seed: Option<u64>) -> QuantumComputer {
+    pub fn new(q_bits: usize, seed: Option<u64>) -> QuantumComputer {
+        #[cfg(feature="console_error_panic_hook")]
+        console_error_panic_hook::set_once();
+
         QuantumComputer(crate::quantum::computer::QuantumComputer::new(q_bits, seed))
     }
 
@@ -39,7 +45,7 @@ impl QuantumComputer {
     }
 
     /// Returns the probability of a qbit
-    pub fn probability(&self, bit: u32) -> f64 {
+    pub fn probability(&self, bit: usize) -> f64 {
         self.0.probability(bit)
     }
 }
@@ -52,6 +58,9 @@ impl QuantumAlgorithm {
     /// Creates a new quantum algorithm instance
     #[wasm_bindgen(constructor)]
     pub fn new(gates: AlgorithmGateArray, step_size: Option<u32>) -> QuantumAlgorithm {
+        #[cfg(feature="console_error_panic_hook")]
+        console_error_panic_hook::set_once();
+
         QuantumAlgorithm(crate::quantum::algorithm::QuantumAlgorithm::new(
             match serde_wasm_bindgen::from_value(gates.unchecked_into()) {
                 Ok(value) => value,

@@ -18,11 +18,11 @@ use tsify::Tsify;
 #[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 #[derive(Copy, Clone, PartialEq)]
 pub struct SGate {
-    wire: u32,
+    wire: usize,
 }
 
 impl SGate {
-    pub fn new(wire: u32) -> SGate {
+    pub fn new(wire: usize) -> SGate {
         SGate { wire }
     }
 }
@@ -34,7 +34,7 @@ impl ToGate<1> for SGate {
 }
 
 impl UsedWires<1> for SGate {
-    fn wires(&self) -> [u32; 1] {
+    fn wires(&self) -> [usize; 1] {
         [self.wire]
     }
 }

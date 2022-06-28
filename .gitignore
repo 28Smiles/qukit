@@ -8,6 +8,7 @@
 /pkg.nodejs
 /pkg.dist
 /pkg.web
+/pkg.web-parallel
 /dist
 /package
 .pnp.*

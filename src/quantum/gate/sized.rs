@@ -4,11 +4,11 @@ use crate::quantum::gate::matrix::const_sized::Gate;
 use crate::quantum::gate::matrix::dynamic::DGate;
 
 pub enum SizedGate {
-    G1(Gate<1>, [u32; 1]),
-    G2(Gate<2>, [u32; 2]),
-    G3(Gate<3>, [u32; 3]),
-    G4(Gate<4>, [u32; 4]),
-    GD(DGate, Vec<u32>),
+    G1(Gate<1>, [usize; 1]),
+    G2(Gate<2>, [usize; 2]),
+    G3(Gate<3>, [usize; 3]),
+    G4(Gate<4>, [usize; 4]),
+    GD(DGate, Vec<usize>),
 }
 
 impl SizedGate {

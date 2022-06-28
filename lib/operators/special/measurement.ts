@@ -1,8 +1,8 @@
 import {WasmLib} from "@/index";
 import {OneWire} from "@/operators/internal";
 
-export class Measure extends OneWire implements WasmLib.Special.Measure {
-    type: "Measure" = "Measure";
+export class Measurement extends OneWire implements WasmLib.Special.Measurement {
+    type: "Measurement" = "Measurement";
     basis?: WasmLib.MeasurementBasis;
     creg?: number;
     cregBit?: number;

@@ -20,12 +20,12 @@ use tsify::Tsify;
 #[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 #[derive(Copy, Clone, PartialEq)]
 pub struct RotationPauliZ {
-    wire: u32,
+    wire: usize,
     theta: f64,
 }
 
 impl RotationPauliZ {
-    pub fn new(wire: u32, theta: f64) -> RotationPauliZ {
+    pub fn new(wire: usize, theta: f64) -> RotationPauliZ {
         RotationPauliZ { wire, theta }
     }
 }
@@ -37,7 +37,7 @@ impl ToGate<1> for RotationPauliZ {
 }
 
 impl UsedWires<1> for RotationPauliZ {
-    fn wires(&self) -> [u32; 1] {
+    fn wires(&self) -> [usize; 1] {
         [self.wire]
     }
 }

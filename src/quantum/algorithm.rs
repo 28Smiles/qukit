@@ -17,7 +17,7 @@ pub struct AlgorithmGate {
 }
 
 impl AlgorithmGate {
-    fn new(position: u32, gate: OperatorType) -> AlgorithmGate {
+    pub fn new(position: u32, gate: OperatorType) -> AlgorithmGate {
         AlgorithmGate {
             position,
             gate,

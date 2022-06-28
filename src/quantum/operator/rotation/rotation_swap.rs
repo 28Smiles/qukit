@@ -96,13 +96,13 @@ use tsify::Tsify;
 #[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 #[derive(Copy, Clone, PartialEq)]
 pub struct RotationSwap {
-    wire_0: u32,
-    wire_1: u32,
+    wire_0: usize,
+    wire_1: usize,
     theta: f64,
 }
 
 impl RotationSwap {
-    pub fn new(wire_0: u32, wire_1: u32, theta: f64) -> RotationSwap {
+    pub fn new(wire_0: usize, wire_1: usize, theta: f64) -> RotationSwap {
         RotationSwap {
             wire_0,
             wire_1,
@@ -124,7 +124,7 @@ impl ApplyGate<2> for RotationSwap {
 }
 
 impl UsedWires<2> for RotationSwap {
-    fn wires(&self) -> [u32; 2] {
+    fn wires(&self) -> [usize; 2] {
         [self.wire_1, self.wire_0]
     }
 }

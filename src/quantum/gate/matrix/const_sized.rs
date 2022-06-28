@@ -1,10 +1,13 @@
 use alloc::vec::Vec;
-use core::ops::{BitXor, Mul, Not};
+use core::ops::{BitXor, Mul};
 
 use crate::complex::Complex;
 use crate::quantum::computer::QuantumComputer;
 use crate::quantum::gate::matrix::dynamic::DGate;
-use crate::quantum::ket::Ket;
+use crate::quantum::ket::{IndexType, Ket};
+
+#[cfg(feature = "rayon")]
+use rayon::prelude::*;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Gate<const SIZE: usize>
@@ -23,7 +26,7 @@ impl<const SIZE: usize> Gate<SIZE>
         Gate { matrix }
     }
 
-    pub fn apply(&self, computer: &mut QuantumComputer, qbits: [u32; SIZE]) {
+    pub fn apply(&self, computer: &mut QuantumComputer, qbits: [usize; SIZE]) {
         // Assert all qbits exist and are different
         for i in 0..SIZE {
             assert!(computer.get_state().size >= qbits[i]);
@@ -34,42 +37,44 @@ impl<const SIZE: usize> Gate<SIZE>
             }
         }
 
+        let old_vec = &computer.get_state().vec;
+        let mut new_ket = Ket::new_zero(computer.get_state().size);
         if SIZE > 0 {
-            let mut new_ket = Ket::new_zero(computer.get_state().size);
-            for i in 0_usize..computer.get_state().vec.len() {
-                #[cfg(not(test))]
-                    let v = *unsafe { computer.get_state().vec.get_unchecked(i) };
-                #[cfg(test)]
-                    let v = *computer.get_state().vec.get(i).unwrap();
+            #[cfg(feature = "rayon")]
+                let iter = new_ket.vec.par_iter_mut();
+            #[cfg(not(feature = "rayon"))]
+                let iter = new_ket.vec.iter_mut();
+            iter.enumerate().for_each(|(ket_idx, new_ket_value)| {
+                let mut ket_idx: IndexType = ket_idx.into();
+                let mut y = IndexType::from(0);
+                for pos in 0..SIZE {
+                    #[cfg(all(not(test), not(feature = "safe")))]
+                    unsafe { y.set(pos, ket_idx.get(qbits[pos]).unwrap_unchecked()) };
+                    #[cfg(any(test, feature = "safe"))]
+                    y.set(pos, ket_idx.get(qbits[pos]).unwrap());
+                }
+                let y: usize = y.into();
 
-                let mut x: usize = 0;
-                for pos in 0..SIZE {
-                    x |= ((i & (0x1_usize << qbits[pos]) > 0) as usize) << pos;
-                }
-                // set all qbit indexes to 0
-                let mut ir = i;
-                for pos in 0..SIZE {
-                    ir &= (0x1_usize << qbits[pos]).not()
-                }
-                for y in 0..0x1 << SIZE {
-                    let mut it = ir;
+                for x in 0..0x1 << SIZE {
+                    let x_idx: IndexType = x.into();
                     for pos in 0..SIZE {
-                        it |= ((y & (0x1_usize << pos) > 0) as usize) << qbits[pos];
+                        #[cfg(all(not(test), not(feature = "safe")))]
+                        unsafe { ket_idx.set(qbits[pos], x_idx.get(pos).unwrap_unchecked()) };
+                        #[cfg(any(test, feature = "safe"))]
+                        ket_idx.set(qbits[pos], x_idx.get(pos).unwrap());
                     }
-                    #[cfg(not(test))]
-                    {
-                        *unsafe { new_ket.vec.get_unchecked_mut(it) } =
-                            *unsafe { new_ket.vec.get_unchecked(it) } + self.matrix[x][y] * v;
-                    }
-                    #[cfg(test)]
-                    {
-                        *new_ket.vec.get_mut(it).unwrap() =
-                            *new_ket.vec.get(it).unwrap() + self.matrix[x][y] * v;
-                    }
+                    let ket_idx: usize = ket_idx.clone().into();
+
+                    #[cfg(all(not(test), not(feature = "safe")))]
+                    let v = *unsafe { old_vec.get(ket_idx).unwrap_unchecked() };
+                    #[cfg(any(test, feature = "safe"))]
+                    let v = *old_vec.get(ket_idx).unwrap();
+                    *new_ket_value = *new_ket_value + self.matrix[x][y] * v;
                 }
-            }
-            computer.set_state(new_ket);
+            });
         }
+
+        computer.set_state(new_ket);
     }
 
     pub const fn matrix(&self) -> &[[Complex; 0x1 << SIZE]; 0x1 << SIZE] {
@@ -179,9 +184,9 @@ impl<const SIZE: usize> Into<DGate> for Gate<SIZE>
             }
         }
 
-        #[cfg(not(test))]
+        #[cfg(all(not(test), not(feature = "safe")))]
         unsafe { DGate::new(matrix).unwrap_unchecked() }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "safe"))]
         DGate::new(matrix).unwrap()
     }
 }

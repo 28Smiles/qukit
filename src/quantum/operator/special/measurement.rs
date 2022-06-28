@@ -22,7 +22,7 @@ use crate::quantum::operator::simple::s_gate_inverse::S_INV_GATE;
 #[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 #[derive(Copy, Clone, PartialEq)]
 pub struct Measurement {
-    wire: u32,
+    wire: usize,
 
     #[cfg_attr(feature = "wasm-pack", tsify(optional))]
     #[cfg_attr(feature = "wasm-pack", serde(default))]
@@ -36,7 +36,7 @@ pub struct Measurement {
 }
 
 #[cfg_attr(feature = "wasm-pack", derive(Tsify))]
-#[cfg_attr(feature = "wasm-pack", tsify(from_wasm_abi, enum_reimport_module))]
+#[cfg_attr(feature = "wasm-pack", tsify(from_wasm_abi))]
 #[cfg_attr(feature = "wasm-pack", derive(serde::Deserialize))]
 #[derive(Copy, Clone, PartialEq)]
 pub enum MeasurementBasis {
@@ -51,7 +51,7 @@ impl Default for MeasurementBasis {
 
 impl Measurement {
     pub fn new(
-        wire: u32,
+        wire: usize,
         basis: Option<MeasurementBasis>,
         creg: Option<u32>,
         creg_bit: Option<u32>,
@@ -104,7 +104,7 @@ impl ApplyGate<1> for Measurement {
 }
 
 impl UsedWires<1> for Measurement {
-    fn wires(&self) -> [u32; 1] {
+    fn wires(&self) -> [usize; 1] {
         [self.wire]
     }
 }

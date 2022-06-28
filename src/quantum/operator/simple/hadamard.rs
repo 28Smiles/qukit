@@ -25,11 +25,11 @@ pub static HADAMARD: Gate<1> = Gate::new([
 #[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 #[derive(Copy, Clone, PartialEq)]
 pub struct Hadamard {
-    wire: u32,
+    wire: usize,
 }
 
 impl Hadamard {
-    pub fn new(wire: u32) -> Hadamard {
+    pub fn new(wire: usize) -> Hadamard {
         Hadamard { wire }
     }
 }
@@ -41,7 +41,7 @@ impl ToGate<1> for Hadamard {
 }
 
 impl UsedWires<1> for Hadamard {
-    fn wires(&self) -> [u32; 1] {
+    fn wires(&self) -> [usize; 1] {
         [self.wire]
     }
 }

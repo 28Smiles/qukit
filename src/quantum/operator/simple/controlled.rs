@@ -18,7 +18,7 @@ pub struct Controlled<
     [(); 0x1 << SIZE]:,
     [(); 0x1 << { SIZE - 1 }]:,
 {
-    wire: u32,
+    wire: usize,
     transformation: T,
 }
 
@@ -28,7 +28,7 @@ where
     [(); 0x1 << SIZE]:,
     [(); 0x1 << { SIZE - 1 }]:,
 {
-    pub fn new(wire: u32, transformation: T) -> Controlled<SIZE, T> {
+    pub fn new(wire: usize, transformation: T) -> Controlled<SIZE, T> {
         Controlled {
             wire,
             transformation,
@@ -77,10 +77,10 @@ where
     [(); 0x1 << SIZE]:,
     [(); 0x1 << { SIZE - 1 }]:,
 {
-    fn wires(&self) -> [u32; SIZE] {
-        let mut w: [u32; SIZE] = [0; SIZE];
+    fn wires(&self) -> [usize; SIZE] {
+        let mut w: [usize; SIZE] = [0; SIZE];
         w[SIZE - 1] = self.wire;
-        let iw: [u32; SIZE - 1] = self.transformation.wires();
+        let iw: [usize; SIZE - 1] = self.transformation.wires();
         for i in 0..SIZE - 1 {
             w[i] = iw[i];
         }

@@ -9,6 +9,7 @@ use crate::quantum::computer::QuantumComputer;
 use float_cmp::{approx_eq, assert_approx_eq};
 use crate::complex::Complex;
 use crate::quantum::gate::matrix::const_sized::Gate;
+use test::Bencher;
 
 extern crate test;
 
@@ -131,4 +132,117 @@ fn ptest() {
     for (c0, c1) in state.iter().zip(state1) {
         assert_approx_eq!(Complex, *c0, c1, epsilon = 0.00001);
     }
+}
+
+#[test]
+fn bv_small() {
+    let m = [
+        true, true, false, false, false
+    ];
+    let mut computer = QuantumComputer::new(m.len() + 1, None);
+    for i in 0..m.len() + 1 {
+        Hadamard::new(i).apply(&mut computer);
+    }
+    PauliZ::new(m.len()).apply(&mut computer);
+    for i in 0..m.len() {
+        if m[i] == true {
+            Controlled::<2, _>::new(i, PauliX::new(m.len())).apply(&mut computer);
+        }
+    }
+    for i in 0..m.len() {
+        Hadamard::new(i).apply(&mut computer);
+    }
+    let probabilities = computer.probabilities();
+    for (&p, v) in probabilities.iter().zip(m) {
+        if v {
+            assert_approx_eq!(f64, p, 1.0, epsilon = 0.00001);
+        } else {
+            assert_approx_eq!(f64, p, 0.0, epsilon = 0.00001);
+        }
+    }
+}
+
+#[test]
+fn bv_medium() {
+    let m = [
+        true, true, false, true, false, true, true, false,
+        true, false, true, true, false, true, false,
+    ];
+    let mut computer = QuantumComputer::new(m.len() + 1, None);
+    for i in 0..m.len() + 1 {
+        Hadamard::new(i).apply(&mut computer);
+    }
+    PauliZ::new(m.len()).apply(&mut computer);
+    for i in 0..m.len() {
+        if m[i] == true {
+            Controlled::<2, _>::new(i, PauliX::new(m.len())).apply(&mut computer);
+        }
+    }
+    for i in 0..m.len() {
+        Hadamard::new(i).apply(&mut computer);
+    }
+    let probabilities = computer.probabilities();
+    for (&p, v) in probabilities.iter().zip(m) {
+        if v {
+            assert_approx_eq!(f64, p, 1.0, epsilon = 0.00001);
+        } else {
+            assert_approx_eq!(f64, p, 0.0, epsilon = 0.00001);
+        }
+    }
+}
+
+#[test]
+#[ignore]
+fn bv_large() {
+    let m = [
+        true, true, false, true, false, true, true, false, true, false, true, true,
+        false, true, false, true, true, false, true, false, true, true, false, true,
+        false, true, true,
+    ];
+    let mut computer = QuantumComputer::new(m.len() + 1, None);
+    for i in 0..m.len() + 1 {
+        Hadamard::new(i).apply(&mut computer);
+    }
+    PauliZ::new(m.len()).apply(&mut computer);
+    for i in 0..m.len() {
+        if m[i] == true {
+            Controlled::<2, _>::new(i, PauliX::new(m.len())).apply(&mut computer);
+        }
+    }
+    for i in 0..m.len() {
+        Hadamard::new(i).apply(&mut computer);
+    }
+    let probabilities = computer.probabilities();
+    for (&p, v) in probabilities.iter().zip(m) {
+        if v {
+            assert_approx_eq!(f64, p, 1.0, epsilon = 0.00001);
+        } else {
+            assert_approx_eq!(f64, p, 0.0, epsilon = 0.00001);
+        }
+    }
+}
+
+#[bench]
+fn bv_bench(bencher: &mut Bencher) {
+    bencher.iter(|| {
+        let m = [
+            true, true, false, true, false, true, true,
+            false, true, false, true, false
+        ];
+        let mut computer = QuantumComputer::new(m.len() + 1, None);
+        for i in 0..m.len() + 1 {
+            Hadamard::new(i).apply(&mut computer);
+        }
+        PauliZ::new(m.len()).apply(&mut computer);
+        for i in 0..m.len() {
+            if m[i] == true {
+                Controlled::<2, _>::new(i, PauliX::new(m.len())).apply(&mut computer);
+            }
+        }
+        for i in 0..m.len() {
+            Hadamard::new(i).apply(&mut computer);
+        }
+
+        computer
+    });
 }

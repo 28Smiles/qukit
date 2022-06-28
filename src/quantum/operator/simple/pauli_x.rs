@@ -19,11 +19,11 @@ use tsify::Tsify;
 #[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 #[derive(Copy, Clone, PartialEq)]
 pub struct PauliX {
-    wire: u32,
+    wire: usize,
 }
 
 impl PauliX {
-    pub fn new(wire: u32) -> PauliX {
+    pub fn new(wire: usize) -> PauliX {
         PauliX { wire }
     }
 }
@@ -41,7 +41,7 @@ impl ApplyGate<1> for PauliX {
 }
 
 impl UsedWires<1> for PauliX {
-    fn wires(&self) -> [u32; 1] {
+    fn wires(&self) -> [usize; 1] {
         [self.wire]
     }
 }

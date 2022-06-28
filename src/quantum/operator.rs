@@ -12,7 +12,7 @@ pub mod traits;
 use tsify::Tsify;
 
 #[cfg_attr(feature = "wasm-pack", derive(Tsify))]
-#[cfg_attr(feature = "wasm-pack", tsify(from_wasm_abi, enum_reimport_module))]
+#[cfg_attr(feature = "wasm-pack", tsify(from_wasm_abi))]
 #[cfg_attr(feature = "wasm-pack", derive(serde::Deserialize))]
 #[cfg_attr(feature = "wasm-pack", serde(untagged))]
 #[derive(Copy, Clone, PartialEq)]

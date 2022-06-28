@@ -121,7 +121,7 @@ jobs:
       - js-test
     strategy:
       matrix:
-        package-type: [ "nodejs", "bundler", "web" ]
+        package-type: [ "nodejs", "bundler", "web", "web-parallel" ]
     steps:
       - uses: actions/checkout@v2
         name: Clone
@@ -150,9 +150,17 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
       - uses: actions-rs/toolchain@v1
         name: Setup Rust
+        if: matrix.package-type != 'web-parallel'
         with:
           toolchain: nightly
           override: true
+      - uses: actions-rs/toolchain@v1
+        name: Setup Rust
+        if: matrix.package-type == 'web-parallel'
+        with:
+          toolchain: nightly
+          override: true
+          components: rust-src
       - uses: jetli/wasm-pack-action@v0.3.0
         name: Install WasmPack
         with:
@@ -160,8 +168,14 @@ jobs:
       - name: Install npm dependencies
         run: yarn install
       - name: Build Wasm
+        if: matrix.package-type != 'web-parallel'
         run: |
           wasm-pack build --target ${{ matrix.package-type }} -- --features wasm-pack --no-default-features
+          rm pkg/{package.json,README.md,.gitignore}
+      - name: Build Wasm
+        if: matrix.package-type == 'web-parallel'
+        run: |
+          RUSTFLAGS='-C target-feature=+atomics,+bulk-memory,+mutable-globals' wasm-pack build --target web -- --features wasm-pack,safe,wasm-parallel --no-default-features -Z build-std=panic_abort,std
           rm pkg/{package.json,README.md,.gitignore}
       - name: Build Ts
         run: yarn run build:ts:${{ matrix.package-type }}
@@ -191,6 +205,10 @@ jobs:
         with:
           name: pkg-web
           path: pkg.web
+      - uses: actions/download-artifact@master
+        with:
+          name: pkg-web-parallel
+          path: pkg.web-parallel
       - uses: actions/upload-artifact@v2
         name: Upload Artifacts
         with:
@@ -199,6 +217,7 @@ jobs:
             pkg.bundler/
             pkg.nodejs/
             pkg.web/
+            pkg.web-parallel/
             package.json
             index.browser.js
             LICENCE

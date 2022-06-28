@@ -6,7 +6,10 @@ use core::ops::{BitXor, Mul, Not};
 use crate::complex::Complex;
 use crate::error::{QuantumError, Result};
 use crate::quantum::computer::QuantumComputer;
-use crate::quantum::ket::Ket;
+use crate::quantum::ket::{IndexType, Ket};
+
+#[cfg(feature = "rayon")]
+use rayon::prelude::*;
 
 #[cfg(feature = "wasm-pack")]
 use tsify::Tsify;
@@ -30,7 +33,7 @@ impl TryFrom<DGateDefinition> for DGate {
 pub struct DGate {
     matrix: Vec<Complex>,
     width: usize,
-    qbit_size: u32,
+    qbit_size: usize,
 }
 
 impl DGate {
@@ -51,7 +54,7 @@ impl DGate {
                 return Ok(DGate {
                     matrix,
                     width: 0x1 << (i / 2),
-                    qbit_size: (i / 2) as u32,
+                    qbit_size: i / 2,
                 });
             }
         }
@@ -61,9 +64,9 @@ impl DGate {
         ))
     }
 
-    pub fn apply(&self, computer: &mut QuantumComputer, qbits: &[u32]) {
+    pub fn apply(&self, computer: &mut QuantumComputer, qbits: &[usize]) {
         // Assert all qbits exist and are different
-        assert_eq!(self.qbit_size, qbits.len() as u32);
+        assert_eq!(self.qbit_size, qbits.len());
         for i in 0..qbits.len() {
             assert!(computer.get_state().size >= qbits[i]);
             for j in 0..qbits.len() {
@@ -73,41 +76,44 @@ impl DGate {
             }
         }
 
+        let old_vec = &computer.get_state().vec;
         let mut new_ket = Ket::new_zero(computer.get_state().size);
-        for i in 0_usize..computer.get_state().vec.len() {
-            #[cfg(not(test))]
-                let v = *unsafe { computer.get_state().vec.get_unchecked(i) };
-            #[cfg(test)]
-                let v = *computer.get_state().vec.get(i).unwrap();
-            let mut x: usize = 0;
-            for pos in 0..qbits.len() {
-                x |= ((i & (0x1_usize << qbits[pos]) > 0) as usize) << pos;
+        #[cfg(feature = "rayon")]
+            let iter = new_ket.vec.par_iter_mut();
+        #[cfg(not(feature = "rayon"))]
+            let iter = new_ket.vec.iter_mut();
+        iter.enumerate().for_each(|(ket_idx, new_ket_value)| {
+            let mut ket_idx: IndexType = ket_idx.into();
+            let mut y = IndexType::from(0);
+            for pos in 0..self.qbit_size {
+                #[cfg(all(not(test), not(feature = "safe")))]
+                unsafe { y.set(pos, ket_idx.get(qbits[pos]).unwrap_unchecked()) };
+                #[cfg(any(test, feature = "safe"))]
+                y.set(pos, ket_idx.get(qbits[pos]).unwrap());
             }
-            // set all qbit indexes to 0
-            let mut ir = i;
-            for pos in 0..qbits.len() {
-                ir &= (0x1_usize << qbits[pos]).not()
-            }
-            for y in 0..0x1 << qbits.len() {
-                let mut it = ir;
-                for pos in 0..qbits.len() {
-                    it |= ((y & (0x1_usize << pos) > 0) as usize) << qbits[pos];
-                }
-                #[cfg(not(test))]
-                {
-                    *unsafe { new_ket.vec.get_unchecked_mut(it) } =
-                        *unsafe { new_ket.vec.get_unchecked(it) }
-                            + *unsafe { self.matrix.get_unchecked(x * self.width + y) } * v;
-                }
-                #[cfg(test)]
-                {
-                    *{ new_ket.vec.get_mut(it).unwrap() } =
-                        *{ new_ket.vec.get(it).unwrap() }
-                            + *{ self.matrix.get(x * self.width + y).unwrap() } * v;
-                }
-            }
-        }
+            let y: usize = y.into();
 
+            for x in 0..self.width {
+                let x_idx: IndexType = x.into();
+                for pos in 0..self.qbit_size {
+                    #[cfg(all(not(test), not(feature = "safe")))]
+                    unsafe { ket_idx.set(qbits[pos], x_idx.get(pos).unwrap_unchecked()) };
+                    #[cfg(any(test, feature = "safe"))]
+                    ket_idx.set(qbits[pos], x_idx.get(pos).unwrap());
+                }
+                let ket_idx: usize = ket_idx.clone().into();
+
+                #[cfg(all(not(test), not(feature = "safe")))]
+                    let v = *unsafe { old_vec.get(ket_idx).unwrap_unchecked() };
+                #[cfg(any(test, feature = "safe"))]
+                    let v = *old_vec.get(ket_idx).unwrap();
+                #[cfg(any(test, feature = "safe"))]
+                let matrix_value = *{ self.matrix.get(x * self.width + y).unwrap() };
+                #[cfg(all(not(test), not(feature = "safe")))]
+                let matrix_value = *unsafe { self.matrix.get(x * self.width + y).unwrap_unchecked() };
+                *new_ket_value = *new_ket_value + matrix_value * v;
+            }
+        });
         computer.set_state(new_ket);
     }
 }
@@ -120,14 +126,14 @@ impl Mul for DGate {
         for x in 0..self.width {
             for y in 0..self.width {
                 for i in 0..self.width {
-                    #[cfg(not(test))]
+                    #[cfg(all(not(test), not(feature = "safe")))]
                     {
                         *unsafe { matrix.get_unchecked_mut(x * self.width + y) } =
                             *unsafe { matrix.get_unchecked(x * self.width + y) }
                                 + *unsafe { self.matrix.get_unchecked(i * self.width + y) }
                                 * *unsafe { rhs.matrix.get_unchecked(x * self.width + i) };
                     }
-                    #[cfg(test)]
+                    #[cfg(any(test, feature = "safe"))]
                     {
                         *{ matrix.get_mut(x * self.width + y).unwrap() } =
                             *{ matrix.get(x * self.width + y).unwrap() }
@@ -138,9 +144,9 @@ impl Mul for DGate {
             }
         }
 
-        #[cfg(not(test))]
+        #[cfg(all(not(test), not(feature = "safe")))]
         unsafe { DGate::new(matrix).unwrap_unchecked() }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "safe"))]
         DGate::new(matrix).unwrap()
     }
 }
@@ -152,12 +158,12 @@ impl<T: Mul<Complex, Output = Complex> + Copy> Mul<T> for DGate {
         let mut matrix: Vec<Complex> = vec![Complex::zero(); self.matrix.len()];
         for x in 0..self.width {
             for y in 0..self.width {
-                #[cfg(not(test))]
+                #[cfg(all(not(test), not(feature = "safe")))]
                 {
                     *unsafe { matrix.get_unchecked_mut(x * self.width + y) } =
                         rhs.mul(*unsafe { self.matrix.get_unchecked(x * self.width + y) });
                 }
-                #[cfg(test)]
+                #[cfg(any(test, feature = "safe"))]
                 {
                     *{ matrix.get_mut(x * self.width + y).unwrap() } =
                         rhs.mul(*{ self.matrix.get(x * self.width + y).unwrap() });
@@ -165,9 +171,9 @@ impl<T: Mul<Complex, Output = Complex> + Copy> Mul<T> for DGate {
             }
         }
 
-        #[cfg(not(test))]
+        #[cfg(all(not(test), not(feature = "safe")))]
         unsafe { DGate::new(matrix).unwrap_unchecked() }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "safe"))]
         DGate::new(matrix).unwrap()
     }
 }
@@ -199,20 +205,20 @@ impl BitXor<DGate> for DGate {
 
         for ax in 0..self.width {
             for ay in 0..self.width {
-                #[cfg(not(test))]
+                #[cfg(all(not(test), not(feature = "safe")))]
                     let a = *unsafe { self.matrix.get_unchecked(ax * self.width + ay) };
-                #[cfg(test)]
+                #[cfg(any(test, feature = "safe"))]
                     let a = *self.matrix.get(ax * self.width + ay).unwrap();
                 for bx in 0..rhs.width {
                     for by in 0..rhs.width {
                         let mx = ax + bx * self.width;
                         let my = ay + by * self.width;
-                        #[cfg(not(test))]
+                        #[cfg(all(not(test), not(feature = "safe")))]
                         {
                             *unsafe { matrix.get_unchecked_mut(mx * matrix_width + my) } =
                                 a * *unsafe { rhs.matrix.get_unchecked(bx * rhs.width + by) };
                         }
-                        #[cfg(test)]
+                        #[cfg(any(test, feature = "safe"))]
                         {
                             *{ matrix.get_mut(mx * matrix_width + my).unwrap() } =
                                 a * *{ rhs.matrix.get(bx * rhs.width + by).unwrap() };
@@ -222,9 +228,9 @@ impl BitXor<DGate> for DGate {
             }
         }
 
-        #[cfg(not(test))]
+        #[cfg(all(not(test), not(feature = "safe")))]
         unsafe { DGate::new(matrix).unwrap_unchecked() }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "safe"))]
         DGate::new(matrix).unwrap()
     }
 }
@@ -246,14 +252,14 @@ mod test {
             let mut a = true;
             for x in 0..self.width {
                 for y in 0..self.width {
-                    #[cfg(not(test))]
+                    #[cfg(all(not(test), not(feature = "safe")))]
                     {
                         a = a && unsafe { *self.matrix.get_unchecked(x * self.width + y) }.approx_eq(
                             unsafe { *other.matrix.get_unchecked(x * self.width + y) },
                             margin
                         );
                     }
-                    #[cfg(test)]
+                    #[cfg(any(test, feature = "safe"))]
                     {
                         a = a && { *self.matrix.get(x * self.width + y).unwrap() }.approx_eq(
                             *other.matrix.get(x * self.width + y).unwrap(),

@@ -13,12 +13,12 @@ use tsify::Tsify;
 #[cfg_attr(feature = "wasm-pack", serde(rename_all = "camelCase"))]
 #[derive(Copy, Clone, PartialEq)]
 pub struct Reset {
-    wire: u32,
+    wire: usize,
     state: bool,
 }
 
 impl Reset {
-    pub fn new(wire: u32, state: bool) -> Reset {
+    pub fn new(wire: usize, state: bool) -> Reset {
         Reset {
             wire,
             state,
@@ -45,7 +45,7 @@ impl ApplyGate<1> for Reset {
 }
 
 impl UsedWires<1> for Reset {
-    fn wires(&self) -> [u32; 1] {
+    fn wires(&self) -> [usize; 1] {
         [self.wire]
     }
 }

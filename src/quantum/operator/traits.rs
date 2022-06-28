@@ -18,7 +18,7 @@ pub trait UsedWires<const SIZE: usize>
     where
         [(); 0x1 << SIZE]:,
 {
-    fn wires(&self) -> [u32; SIZE];
+    fn wires(&self) -> [usize; SIZE];
 }
 
 pub trait Parameterized<const SIZE: usize>
