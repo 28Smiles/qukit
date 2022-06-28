@@ -11,7 +11,7 @@
 
 ## Wasm Limitations
 
-In wasm you are limited to 2GB/4GB of memory, this means, with this library you are able to simulate up to 25 q-bits.
+In wasm you are limited to 2GB/4GB of memory, thus your are only able to simulate up to 25 q-bits with this library.
 For a 25 q-bit system we need to keep track of `2^26` states.
 A state is described by a complex value, which is composed of 2 `f64` values, which equates to `2 x 8 = 16 Bytes`.
 This equates to a state vector of `2^26 x 16 = 1073731824 Bytes ≈ 1.07 GB`.
