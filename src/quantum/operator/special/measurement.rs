@@ -76,20 +76,34 @@ impl ApplyGate<1> for Measurement {
             MeasurementBasis::Z => {},
         }
 
-        let proballily: f64 = computer.probability(self.wire);
-        let random_weight: f64 = 1.0 / (computer.seed.next_u64() as f64 + 1.0);
-        let state = proballily - random_weight > 0.0;
+        let probability: f64 = computer.probability(self.wire);
+        let random_weight: f64 = computer.seed.next_u32() as f64 / u32::MAX as f64;
+        let state = probability - random_weight > 0.0;
 
         if state {
-            Gate::new([
-                [Complex::new(0.0, 0.0), Complex::new(0.0, 0.0)],
-                [Complex::new(0.0, 0.0), Complex::new(sqrt(1.0 / proballily), 0.0)],
-            ])
+            if probability == 0.0 {
+                Gate::new([
+                    [Complex::new(0.0, 0.0), Complex::new(0.0, 0.0)],
+                    [Complex::new(1.0, 0.0), Complex::new(0.0, 0.0)],
+                ])
+            } else {
+                Gate::new([
+                    [Complex::new(0.0, 0.0), Complex::new(0.0, 0.0)],
+                    [Complex::new(0.0, 0.0), Complex::new(sqrt(1.0 / probability), 0.0)],
+                ])
+            }
         } else {
-            Gate::new([
-                [Complex::new(sqrt(1.0 / proballily), 0.0), Complex::new(0.0, 0.0)],
-                [Complex::new(0.0, 0.0), Complex::new(0.0, 0.0)],
-            ])
+            if probability == 0.0 {
+                Gate::new([
+                    [Complex::new(0.0, 0.0), Complex::new(1.0, 0.0)],
+                    [Complex::new(0.0, 0.0), Complex::new(0.0, 0.0)],
+                ])
+            } else {
+                Gate::new([
+                    [Complex::new(sqrt(1.0 / probability), 0.0), Complex::new(0.0, 0.0)],
+                    [Complex::new(0.0, 0.0), Complex::new(0.0, 0.0)],
+                ])
+            }
         }.apply(computer, self.wires());
 
         match self.basis {

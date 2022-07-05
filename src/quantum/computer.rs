@@ -2,7 +2,6 @@ use alloc::vec::Vec;
 use alloc::vec;
 use rand::SeedableRng;
 use rand::rngs::SmallRng;
-use crate::complex::Complex;
 use crate::quantum::ket::Ket;
 
 pub struct QuantumComputer {
@@ -18,8 +17,8 @@ impl QuantumComputer {
         }
     }
 
-    pub fn state(&self) -> &Vec<Complex> {
-        &self.state.vec
+    pub fn state(&self) -> &Ket {
+        &self.state
     }
 
     pub fn amplitudes(&self) -> Vec<f64> {
@@ -72,5 +71,9 @@ impl QuantumComputer {
 
     pub(crate) fn get_state(&self) -> &Ket {
         &self.state
+    }
+
+    pub fn reset(&mut self) {
+        self.state = Ket::new(self.state.size);
     }
 }

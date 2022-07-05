@@ -31,7 +31,7 @@ impl QuantumComputer {
 
     /// Returns the state of the quantum computer
     pub fn state(&self) -> ComplexArray {
-        serde_wasm_bindgen::to_value(self.0.state()).unwrap().unchecked_into()
+        serde_wasm_bindgen::to_value(&self.0.state().vec).unwrap().unchecked_into()
     }
 
     /// Returns the probability of all states

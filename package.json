@@ -11,6 +11,7 @@
     "pkg.web",
     "pkg.web-parallel",
     "index.browser.js",
+    "index.browser.d.ts",
     "README.md",
     "LICENCE"
   ],

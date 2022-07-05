@@ -89,10 +89,10 @@ impl Ket {
 
 impl Display for Ket {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-        for (i, a) in self.amplitudes().iter().enumerate() {
+        for (i, v) in self.vec.iter().enumerate() {
             let s = format!("{:#0width$b}", i, width = self.size as usize + 2);
             let (_, s) = s.split_at(2);
-            writeln!(f, "|{}> = {:05.2}%", s, a * 100.0)?;
+            writeln!(f, "|{}> = {}", s, v)?;
         }
 
         Ok(())
