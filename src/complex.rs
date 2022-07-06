@@ -1,5 +1,6 @@
 use core::fmt::{Display, Formatter};
 use core::ops::{Add, Mul};
+use libm::sqrt;
 
 #[cfg(feature = "wasm-pack")]
 use tsify::Tsify;
@@ -13,7 +14,7 @@ pub struct Complex {
     im: f64,
 }
 
-impl Add<Complex> for Complex {
+impl const Add<Complex> for Complex {
     type Output = Complex;
 
     #[inline(always)]
@@ -25,7 +26,7 @@ impl Add<Complex> for Complex {
     }
 }
 
-impl Mul<Complex> for Complex {
+impl const Mul<Complex> for Complex {
     type Output = Complex;
 
     #[inline(always)]
@@ -37,21 +38,39 @@ impl Mul<Complex> for Complex {
     }
 }
 
-impl Mul<Complex> for f64 {
+impl const Mul<Complex> for f64 {
     type Output = Complex;
 
     #[inline(always)]
     fn mul(self, rhs: Complex) -> Self::Output {
-        Complex::new(rhs.re() * self, rhs.im())
+        Complex::new(rhs.re() * self, rhs.im() * self)
     }
 }
 
-impl Mul<f64> for Complex {
+impl const Add<Complex> for f64 {
+    type Output = Complex;
+
+    #[inline(always)]
+    fn add(self, rhs: Complex) -> Self::Output {
+        Complex::new(rhs.re() + self, rhs.im())
+    }
+}
+
+impl const Mul<f64> for Complex {
     type Output = Complex;
 
     #[inline(always)]
     fn mul(self, rhs: f64) -> Self::Output {
         rhs.mul(self)
+    }
+}
+
+impl const Add<f64> for Complex {
+    type Output = Complex;
+
+    #[inline(always)]
+    fn add(self, rhs: f64) -> Self::Output {
+        rhs.add(self)
     }
 }
 
@@ -78,13 +97,38 @@ impl Complex {
     }
 
     #[inline(always)]
-    pub fn abs(self) -> f64 {
-        libm::sqrt(self.amplitude())
+    pub fn abs(&self) -> f64 {
+        sqrt(self.amplitude())
     }
 
     #[inline(always)]
-    pub fn amplitude(self) -> f64 {
+    pub const fn amplitude(&self) -> f64 {
         self.re() * self.re() + self.im() * self.im()
+    }
+
+    #[inline(always)]
+    pub const fn conjugate(&self) -> Complex {
+        Complex::new(self.re(), -self.im())
+    }
+
+    #[inline(always)]
+    pub const fn mul_e(&self, other: &Complex) -> Complex {
+        Complex::new(self.re() * other.re(), self.im() * other.re())
+    }
+
+    #[inline(always)]
+    pub const fn div_e(&self, other: &Complex) -> Complex {
+        Complex::new(self.re() / other.re(), self.im() / other.re())
+    }
+
+    #[inline(always)]
+    pub fn abs_e(&self) -> Complex {
+        Complex::new(self.re().abs(), self.im().abs())
+    }
+
+    #[inline(always)]
+    pub fn nan_to_zero(&self) -> Complex {
+        Complex::new(if self.re() == f64::NAN { 0.0 } else { 0.0 }, if self.im() == f64::NAN { 0.0 } else { 0.0 })
     }
 }
 
@@ -94,7 +138,7 @@ impl Display for Complex {
     }
 }
 
-impl Default for Complex {
+impl const Default for Complex {
     fn default() -> Self {
         Complex::zero()
     }

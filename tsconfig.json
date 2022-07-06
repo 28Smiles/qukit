@@ -18,10 +18,13 @@
     "esModuleInterop": true,
     "paths": {
       "@/pkg/qukit": ["./pkg/qukit"],
-      "@/*": ["./lib/*"]
-    }
+      "@/*": ["./jslib/*"]
+    },
+    "plugins": [
+      { "transform": "ts-macros" }
+    ]
   },
   "include": [
-    "lib/**/*.ts"
+    "jslib/**/*.ts"
   ]
 }

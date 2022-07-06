@@ -17,26 +17,23 @@
   ],
   "scripts": {
     "build:wasm:nodejs": "rm -rf pkg && wasm-pack build --target nodejs -- --features wasm-pack,safe --no-default-features && rm pkg/{package.json,README.md,.gitignore}",
-    "build:ts:nodejs": "rm -rf dist && tsc --project tsconfig.node.json",
+    "build:ts:nodejs": "rm -rf dist && ttsc --project tsconfig.node.json",
     "build:assemble:nodejs": "rm -rf pkg.nodejs && mkdir pkg.nodejs && mv dist/* pkg.nodejs && mv pkg pkg.nodejs/pkg && cp tsconfig.dist.json ./pkg.nodejs/tsconfig.json && tscpaths -p ./pkg.nodejs/tsconfig.json -s ./pkg.nodejs -o ./pkg.nodejs && rm ./pkg.nodejs/tsconfig.json",
     "build:nodejs": "yarn run build:wasm:nodejs && yarn run build:ts:nodejs && yarn run build:assemble:nodejs",
-
     "build:wasm:bundler": "rm -rf pkg && wasm-pack build --target bundler -- --features wasm-pack,safe --no-default-features && rm pkg/{package.json,README.md,.gitignore}",
-    "build:ts:bundler": "rm -rf dist && tsc --project tsconfig.json",
+    "build:ts:bundler": "rm -rf dist && ttsc --project tsconfig.json",
     "build:assemble:bundler": "rm -rf pkg.bundler && mkdir pkg.bundler && mv dist/* pkg.bundler && mv pkg pkg.bundler/pkg && cp tsconfig.dist.json ./pkg.bundler/tsconfig.json && tscpaths -p ./pkg.bundler/tsconfig.json -s ./pkg.bundler -o ./pkg.bundler && rm ./pkg.bundler/tsconfig.json",
     "build:bundler": "yarn run build:wasm:bundler && yarn run build:ts:bundler && yarn run build:assemble:bundler",
-
     "build:wasm:web": "rm -rf pkg && wasm-pack build --target web -- --features wasm-pack,safe --no-default-features && rm pkg/{package.json,README.md,.gitignore}",
-    "build:ts:web": "rm -rf dist && tsc --project tsconfig.json",
+    "build:ts:web": "rm -rf dist && ttsc --project tsconfig.json",
     "build:assemble:web": "rm -rf pkg.web && mkdir pkg.web && mv dist/* pkg.web && mv pkg pkg.web/pkg && cp tsconfig.dist.json ./pkg.web/tsconfig.json && tscpaths -p ./pkg.web/tsconfig.json -s ./pkg.web -o ./pkg.web && rm ./pkg.web/tsconfig.json",
     "build:web": "yarn run build:wasm:web && yarn run build:ts:web && yarn run build:assemble:web",
-
     "build:wasm:web-parallel": "rm -rf pkg && RUSTFLAGS='-C target-feature=+atomics,+bulk-memory,+mutable-globals'; wasm-pack build --target web -- --features wasm-pack,safe,wasm-parallel --no-default-features -Z build-std=panic_abort,std && rm pkg/{package.json,README.md,.gitignore}",
-    "build:ts:web-parallel": "rm -rf dist && tsc --project tsconfig.json",
+    "build:ts:web-parallel": "rm -rf dist && ttsc --project tsconfig.json",
     "build:assemble:web-parallel": "rm -rf pkg.web-parallel && mkdir pkg.web-parallel && mv dist/* pkg.web-parallel && mv pkg pkg.web-parallel/pkg && cp tsconfig.dist.json ./pkg.web-parallel/tsconfig.json && tscpaths -p ./pkg.web-parallel/tsconfig.json -s ./pkg.web-parallel -o ./pkg.web-parallel && rm ./pkg.web-parallel/tsconfig.json",
     "build:web-parallel": "yarn run build:wasm:web-parallel && yarn run build:ts:web-parallel && yarn run build:assemble:web-parallel",
-
-    "build": "yarn run build:nodejs && yarn run build:bundler && yarn run build:web && yarn run build:web-parallel",
+    "build": "yarn run generatets && yarn run build:nodejs && yarn run build:bundler && yarn run build:web && yarn run build:web-parallel",
+    "generatets": "node create-js-lib.js",
     "pretest": "rm -rf pkg && wasm-pack build --target nodejs -- --features wasm-pack --no-default-features",
     "test": "jest test/wasm/*",
     "test:wasm": "jest test/wasm/*",
@@ -61,7 +58,9 @@
     "@types/jest": "^28.1.1",
     "jest": "^28.1.1",
     "ts-jest": "^28.0.5",
+    "ts-macros": "^1.3.3",
     "tscpaths": "^0.0.9",
+    "ttypescript": "^1.5.13",
     "typescript": "^4.7.4"
   },
   "jest": {

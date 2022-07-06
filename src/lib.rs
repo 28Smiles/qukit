@@ -7,8 +7,19 @@
 #![feature(extern_types)]
 #![feature(bench_black_box)]
 
+#![feature(const_trait_impl)]
+#![feature(const_intoiterator_identity)]
+#![feature(const_mut_refs)]
+#![feature(const_fn_floating_point_arithmetic)]
+#![feature(const_for)]
+#![feature(const_refs_to_cell)]
+#![feature(const_default_impls)]
+
 extern crate typenum;
 extern crate alloc;
+
+#[cfg(feature = "wasm-bindgen-rayon")]
+pub use wasm_bindgen_rayon::init_thread_pool;
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -18,7 +29,8 @@ extern crate std;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 pub mod error;
+pub mod api;
 pub mod complex;
-pub mod quantum;
-#[cfg(feature = "wasm-pack")]
-pub mod bindgen;
+pub(crate) mod util;
+pub(crate) mod runtime;
+pub(crate) mod toolbox;

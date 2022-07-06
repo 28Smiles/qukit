@@ -177,6 +177,8 @@ jobs:
         run: |
           RUSTFLAGS='-C target-feature=+atomics,+bulk-memory,+mutable-globals' wasm-pack build --target web -- --features wasm-pack,safe,wasm-parallel --no-default-features -Z build-std=panic_abort,std
           rm pkg/{package.json,README.md,.gitignore}
+      - name: Generate Ts
+        run: yarn run generatets
       - name: Build Ts
         run: yarn run build:ts:${{ matrix.package-type }}
       - name: Assemble

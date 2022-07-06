@@ -12,7 +12,7 @@ name = "qukit"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-std = []
+std = ["rand/std_rng", "rand/std"]
 safe = []
 parallel = ["rayon"]
 wasm-parallel = ["parallel", "wasm-bindgen-rayon"]
@@ -20,19 +20,23 @@ wasm-pack = [ "serde", "wasm-bindgen", "tsify", "wee_alloc", "console_error_pani
 default = [ "std", "parallel" ]
 
 [dependencies]
-libm = "0.2"
-rayon = { version = "1.5", optional = true }
-wasm-bindgen-rayon = { version = "1.0", optional = true }
-typenum = "1.15"
-bit-array = "0.4"
-rand = { version = "0.8", default-features = false, features = ["small_rng"] }
-serde = { version = "1.0", features = ["derive"], optional = true }
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = true }
-tsify = { version = "0.3", optional = true }
-console_error_panic_hook = { version = "0.1", optional = true }
-wee_alloc = { version = "0.4", optional = true }
-js-sys = { version = "0.3", optional = true }
-serde-wasm-bindgen = { version = "0.4", optional = true }
+const-trig = "0"
+libm = "0"
+rayon = { version = "1", optional = true }
+wasm-bindgen-rayon = { version = "1", optional = true }
+typenum = "1"
+bit-array = "0"
+spin = "0"
+tinyvec = { version = "1", features = ["alloc"] }
+paste = "1"
+rand = { version = "0", default-features = false, features = ["small_rng"] }
+serde = { version = "1", features = ["derive"], optional = true }
+wasm-bindgen = { version = "0", features = ["serde-serialize"], optional = true }
+tsify = { version = "0", optional = true }
+console_error_panic_hook = { version = "0", optional = true }
+wee_alloc = { version = "0", optional = true }
+js-sys = { version = "0", optional = true }
+serde-wasm-bindgen = { version = "0", optional = true }
 
 [dev-dependencies]
 float-cmp = "0.9"
