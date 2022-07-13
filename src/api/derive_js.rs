@@ -74,6 +74,19 @@ impl Algorithm {
 
         AlgorithmResult(quantum_register, classical_register)
     }
+
+    pub fn step(&mut self) -> Option<AlgorithmResult> {
+        if let Some((quantum_register, classical_register)) = self.0.step() {
+            Some(AlgorithmResult(quantum_register, classical_register))
+        } else {
+            None
+        }
+    }
+
+    #[wasm_bindgen(js_name = intoStepper)]
+    pub fn into_stepper(self, steps: usize) -> Algorithm {
+        Algorithm(self.0.into_stepper(steps))
+    }
 }
 
 #[wasm_bindgen]
@@ -136,7 +149,7 @@ impl GateBuilder {
         let ket = Ket::new(self.0).unwrap();
         let register = Register::new(self.1);
         let tools = self.2;
-        Algorithm(super::derive::Algorithm(ket, register, tools))
+        Algorithm(super::derive::Algorithm(ket, register, tools, 0))
     }
 
     pub fn qbit(&mut self) -> QBit {

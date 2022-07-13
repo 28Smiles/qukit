@@ -22,8 +22,8 @@ function bvAlgorithm(hidden: boolean[]) {
 
     qbits.forEach((qbit, index) => measurement_z(qbit, bits[index]));
 
-    const result = builder.into_algorithm().run();
-    const measurements = result.classical_register().state();
+    const result = builder.intoAlgorithm().run();
+    const measurements = result.classicalRegister().state();
 
     hidden.forEach((hidden, index) => {
         expect(hidden).toBe(measurements[index]);

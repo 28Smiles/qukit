@@ -2,6 +2,7 @@ use alloc::vec::Vec;
 use core::ops::{Deref, DerefMut};
 use core::stringify;
 use core::concat;
+use core::f64::consts::PI;
 use spin::Mutex;
 use tinyvec::TinyVec;
 use crate::api::{ClassicalRegister, QuantumRegister};
@@ -22,6 +23,7 @@ use crate::toolbox::operator::phase_root::{PhaseRoot, PhaseRootDagger};
 use crate::toolbox::operator::pauli_x_root::PauliXRoot;
 use crate::toolbox::operator::swap::Swap;
 use crate::toolbox::operator::swap_root::SwapRoot;
+use crate::toolbox::parameterized::Parameterized;
 use crate::toolbox::rotation::pauli_x::RotationPauliX;
 use crate::toolbox::rotation::pauli_y::RotationPauliY;
 use crate::toolbox::rotation::pauli_z::RotationPauliZ;
@@ -34,7 +36,7 @@ use crate::toolbox::rotation::Rotation;
 use crate::toolbox::Tool;
 
 #[derive(Clone)]
-pub struct Algorithm(pub(crate) Ket, pub(crate) Register, pub(crate) Vec<TinyVec<[Tool; 1]>>);
+pub struct Algorithm(pub(crate) Ket, pub(crate) Register, pub(crate) Vec<TinyVec<[Tool; 1]>>, pub(crate) usize);
 
 impl Algorithm {
     pub fn new<F: Fn(GateBuilder) -> GateBuilder>(f: F) -> Algorithm {
@@ -43,8 +45,187 @@ impl Algorithm {
         Algorithm(
             Ket::new(*builder.0.get_mut()).unwrap(),
             Register::new(*builder.1.get_mut()),
-            builder.2.get_mut().clone()
+            builder.2.get_mut().clone(),
+            0
         )
+    }
+
+    pub fn into_stepper(self, steps: usize) -> Algorithm {
+        let theta = PI / steps as f64;
+        Algorithm(
+            self.0,
+            self.1,
+            self.2.iter()
+                .flat_map(|step| {
+                    let new_tiny: TinyVec<[Tool; 1]> = step.iter()
+                        .map(|tool| match tool {
+                            Tool::Operator(o) => match o {
+                                Operator::Hadamard(o) => o.parameterized(theta).into(),
+                                Operator::PauliX(o) => o.parameterized(theta).into(),
+                                Operator::PauliXRoot(o) => o.parameterized(theta).into(),
+                                Operator::PauliY(o) => o.parameterized(theta).into(),
+                                Operator::PauliZ(o) => o.parameterized(theta).into(),
+                                Operator::Phase(o) => o.parameterized(theta).into(),
+                                Operator::PhaseDagger(o) => o.parameterized(theta).into(),
+                                Operator::PhaseRoot(o) => o.parameterized(theta).into(),
+                                Operator::PhaseRootDagger(o) => o.parameterized(theta).into(),
+                                Operator::Swap(o) => o.parameterized(theta).into(),
+                                Operator::SwapRoot(o) => o.parameterized(theta).into(),
+                            },
+                            Tool::Rotation(o) => match o {
+                                Rotation::Hadamard(o) => o.parameterized(theta).into(),
+                                Rotation::X(o) => o.parameterized(theta).into(),
+                                Rotation::Y(o) => o.parameterized(theta).into(),
+                                Rotation::Z(o) => o.parameterized(theta).into(),
+                                Rotation::PauliX(o) => o.parameterized(theta).into(),
+                                Rotation::PauliY(o) => o.parameterized(theta).into(),
+                                Rotation::PauliZ(o) => o.parameterized(theta).into(),
+                                Rotation::Swap(o) => o.parameterized(theta).into(),
+                            },
+                            Tool::Controlled(o) => match o {
+                                Controlled::ControlledHadamard(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPauliX(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPauliXRoot(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPauliY(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPauliZ(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPhase(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPhaseDagger(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPhaseRoot(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledPhaseRootDagger(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledSwap(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledSwapRoot(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationHadamard(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationX(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationY(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationZ(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationPauliX(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationPauliY(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationPauliZ(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledRotationSwap(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledHadamard(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPauliX(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPauliXRoot(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPauliY(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPauliZ(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPhase(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPhaseDagger(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPhaseRoot(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledPhaseRootDagger(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledSwap(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledSwapRoot(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationHadamard(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationX(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationY(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationZ(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationPauliX(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationPauliY(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationPauliZ(o) => o.parameterized(theta).into(),
+                                Controlled::ControlledControlledRotationSwap(o) => o.parameterized(theta).into(),
+                            },
+                            Tool::Measurement(m) => Tool::Measurement(*m),
+                            Tool::Reset(r) => Tool::Reset(*r),
+                            Tool::Custom(c) => Tool::Custom(c.clone()),
+                            Tool::None => Tool::None,
+                        })
+                        .collect();
+                    (0..steps).map(move |_| new_tiny.clone())
+                }
+                )
+                .collect(),
+            self.3,
+        )
+    }
+
+    pub fn step(&mut self) -> Option<(QuantumRegister, ClassicalRegister)> {
+        let mut ket = self.0.clone();
+        let mut reg = self.1.clone();
+        if let Some(col) = self.2.get(self.3) {
+            for tool in col {
+                ket = match tool {
+                    Tool::Operator(o) => {
+                        match o {
+                            Operator::Hadamard(o) => o.operator().apply(ket, &mut reg),
+                            Operator::PauliX(o) => o.operator().apply(ket, &mut reg),
+                            Operator::PauliXRoot(o) => o.operator().apply(ket, &mut reg),
+                            Operator::PauliY(o) => o.operator().apply(ket, &mut reg),
+                            Operator::PauliZ(o) => o.operator().apply(ket, &mut reg),
+                            Operator::Phase(o) => o.operator().apply(ket, &mut reg),
+                            Operator::PhaseDagger(o) => o.operator().apply(ket, &mut reg),
+                            Operator::PhaseRoot(o) => o.operator().apply(ket, &mut reg),
+                            Operator::PhaseRootDagger(o) => o.operator().apply(ket, &mut reg),
+                            Operator::Swap(o) => o.operator().apply(ket, &mut reg),
+                            Operator::SwapRoot(o) => o.operator().apply(ket, &mut reg),
+                        }
+                    }
+                    Tool::Rotation(o) => {
+                        match o {
+                            Rotation::Hadamard(o) => o.operator().apply(ket, &mut reg),
+                            Rotation::X(o) => o.operator().apply(ket, &mut reg),
+                            Rotation::Y(o) => o.operator().apply(ket, &mut reg),
+                            Rotation::Z(o) => o.operator().apply(ket, &mut reg),
+                            Rotation::PauliX(o) => o.operator().apply(ket, &mut reg),
+                            Rotation::PauliY(o) => o.operator().apply(ket, &mut reg),
+                            Rotation::PauliZ(o) => o.operator().apply(ket, &mut reg),
+                            Rotation::Swap(o) => o.operator().apply(ket, &mut reg),
+                        }
+                    }
+                    Tool::Controlled(o) => {
+                        match o {
+                            Controlled::ControlledHadamard(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPauliX(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPauliXRoot(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPauliY(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPauliZ(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPhase(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPhaseDagger(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPhaseRoot(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledPhaseRootDagger(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledSwap(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledSwapRoot(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationHadamard(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationX(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationY(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationZ(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationPauliX(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationPauliY(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationPauliZ(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledRotationSwap(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledHadamard(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPauliX(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPauliXRoot(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPauliY(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPauliZ(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPhase(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPhaseDagger(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPhaseRoot(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledPhaseRootDagger(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledSwap(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledSwapRoot(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationHadamard(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationX(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationY(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationZ(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationPauliX(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationPauliY(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationPauliZ(o) => o.operator().apply(ket, &mut reg),
+                            Controlled::ControlledControlledRotationSwap(o) => o.operator().apply(ket, &mut reg),
+                        }
+                    }
+                    Tool::Measurement(o) => o.apply(ket, &mut reg),
+                    Tool::Reset(o) => o.apply(ket, &mut reg),
+                    Tool::Custom(o) => o.apply(ket, &mut reg),
+                    Tool::None => ket,
+                };
+            }
+
+            self.0 = ket.clone();
+            self.1 = reg.clone();
+            self.3 = self.3 + 1;
+
+            Some((QuantumRegister(ket), ClassicalRegister(reg)))
+        } else {
+            None
+        }
     }
 
     pub fn run(self) -> (QuantumRegister, ClassicalRegister) {
