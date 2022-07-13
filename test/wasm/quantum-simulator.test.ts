@@ -1,4 +1,4 @@
-import {controlled_pauli_x, GateBuilder, hadamard, measurement_z, pauli_z} from "../../pkg";
+import {controlled_pauli_x, GateBuilder, hadamard, measurement_z, pauli_z} from "../../pkg/qukit";
 
 function bvAlgorithm(hidden: boolean[]) {
     const builder = new GateBuilder();
