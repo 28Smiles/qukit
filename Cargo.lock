@@ -317,7 +317,7 @@ dependencies = [
 
 [[package]]
 name = "qukit"
-version = "0.0.0-pre3"
+version = "0.0.0-pre4"
 dependencies = [
  "bit-array",
  "console_error_panic_hook",

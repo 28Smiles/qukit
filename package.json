@@ -1,6 +1,6 @@
 {
   "name": "qukit",
-  "version": "0.0.0-pre3",
+  "version": "0.0.0-pre4",
   "main": "./pkg.nodejs/index.js",
   "types": "./pkg.nodejs/index.d.ts",
   "browser": "./index.browser.js",
