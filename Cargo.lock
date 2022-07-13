@@ -516,9 +516,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tsify"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a44e83b0e49e19860fbad4d577c134164751d7c1cab8251563b12249b74c7e7"
+checksum = "cd51deb9186c018de890b02887411d12b32fc84d954464c16c40913730160d14"
 dependencies = [
  "tsify-macros",
  "wasm-bindgen",
