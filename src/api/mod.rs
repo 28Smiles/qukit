@@ -53,6 +53,34 @@ impl QuantumRegister {
     }
 }
 
+#[cfg(not(feature = "wasm-bindgen"))]
+impl QuantumRegister {
+    /// Returns the array of all states
+    pub fn states(&self) -> &Vec<Complex> {
+        self.0.state()
+    }
+
+    /// Returns the states of this index
+    pub fn state(&self, idx: usize) -> Option<Complex> {
+        self.0.state().get(idx).map(|c| *c)
+    }
+
+    /// Returns the probability of all states
+    pub fn amplitudes(&self) -> Vec<f64> {
+        self.0.amplitudes()
+    }
+
+    /// Returns the probabilities of each qbit
+    pub fn probabilities(&self) -> Vec<f64> {
+        self.0.probabilities()
+    }
+
+    /// Returns the probability of a qbit
+    pub fn probability(&self, bit: usize) -> f64 {
+        self.0.probability(bit)
+    }
+}
+
 #[cfg_attr(feature = "wasm-bindgen", wasm_bindgen)]
 #[derive(Clone)]
 pub struct ClassicalRegister(pub(crate) Register);
