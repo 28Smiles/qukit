@@ -18,7 +18,7 @@ safe = []
 parallel = ["rayon"]
 wasm-parallel = ["parallel", "wasm-bindgen-rayon"]
 wasm-pack = [ "serde", "wasm-bindgen", "tsify", "wee_alloc", "console_error_panic_hook", "js-sys", "serde-wasm-bindgen" ]
-default = [ "std", "parallel" ]
+default = [ "std" ]
 
 [dependencies]
 const-trig = "0"
