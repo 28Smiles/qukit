@@ -1,11 +1,12 @@
 [package]
 name = "qukit"
-version = "0.0.0-pre4"
+version = "0.0.0-pre5"
 description = "a quantum simulator for rust and wasm"
 repository = "https://github.com/28Smiles/qukit"
 authors = ["Leon Camus <leon.c@gmx.de>"]
 edition = "2021"
 license = "MIT"
+categories = ["quantum-computer", "quantum-simulator", "quantum", "rust", "nightly"]
 
 [lib]
 name = "qukit"

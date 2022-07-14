@@ -1,6 +1,6 @@
 {
   "name": "qukit",
-  "version": "0.0.0-pre4",
+  "version": "0.0.0-pre5",
   "main": "./pkg.nodejs/index.js",
   "types": "./pkg.nodejs/index.d.ts",
   "browser": "./index.browser.js",
@@ -44,9 +44,11 @@
     "url": "git+ssh://git@github.com/28Smiles/qukit.git"
   },
   "keywords": [
-    "quantum",
     "wasm",
-    "simulation"
+    "rust",
+    "quantum",
+    "quantum-computer",
+    "quantum-simulator"
   ],
   "author": "Leon Camus <leon.c@gmx.de>",
   "license": "MIT",
