@@ -33,12 +33,12 @@ jobs:
         name: Cargo Build
         with:
           command: build
-          args: --verbose --features std
+          args: --verbose --features std --release
       - uses: actions-rs/cargo@v1
         name: Cargo Test
         with:
           command: test
-          args: --verbose --features std
+          args: --verbose --features std --release
   js-pretest:
     runs-on: ubuntu-latest
     steps:
