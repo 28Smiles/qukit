@@ -1,4 +1,5 @@
 use core::fmt::{Display, Formatter};
+use alloc::vec::Vec;
 use crate::runtime::ket::Ket;
 use crate::runtime::register::Register;
 use crate::complex::Complex;
@@ -59,8 +60,15 @@ pub struct ClassicalRegister(pub(crate) Register);
 #[cfg(feature = "wasm-bindgen")]
 #[wasm_bindgen]
 impl ClassicalRegister {
-    pub fn state(&self) -> alloc::vec::Vec<js_sys::Boolean> {
+    pub fn state(&self) -> Vec<js_sys::Boolean> {
         self.0.bits().iter().map(|v| js_sys::Boolean::from(*v)).collect()
+    }
+}
+
+#[cfg(not(feature = "wasm-bindgen"))]
+impl ClassicalRegister {
+    pub fn state(&self) -> &Vec<bool> {
+        self.0.bits()
     }
 }
 

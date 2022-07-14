@@ -30,7 +30,7 @@ function bvAlgorithm(hidden: boolean[]) {
     });
 }
 
-test('test large', () => {
+test('test extreme bv', () => {
     bvAlgorithm([
         true, true, false, true, false,
         true, true, false,  true, true,
@@ -40,7 +40,7 @@ test('test large', () => {
     ]);
 });
 
-test('test med bv', () => {
+test('test large bv', () => {
     bvAlgorithm([
         true, true, false, true, false,
         true, true, false, false, true,

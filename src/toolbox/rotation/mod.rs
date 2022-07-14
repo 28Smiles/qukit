@@ -17,7 +17,7 @@ pub(crate)mod pauli_z;
 pub(crate)mod hadamard;
 pub(crate)mod swap;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub(crate)enum Rotation {
     Hadamard(RotationHadamard),
     X(RotationX),
@@ -58,7 +58,7 @@ pub(crate) mod rotation_macro {
     macro_rules! impl_rotation {
         ($matrix:ident, $type:ty, $name:ident, 1, $doc: expr) => {
             #[doc = $doc]
-            #[derive(Copy, Clone, PartialEq)]
+            #[derive(Copy, Clone, PartialEq, Debug)]
             pub(crate)struct $name(f64, crate::runtime::const_sized::unitary_operator::ConstSizedUnitaryOperator<1, $type>);
 
             impl $name {
@@ -110,7 +110,7 @@ pub(crate) mod rotation_macro {
 
         ($matrix:ident, $type:ty, $name:ident, 2, $doc: expr) => {
             #[doc = $doc]
-            #[derive(Copy, Clone, PartialEq)]
+            #[derive(Copy, Clone, PartialEq, Debug)]
             pub(crate)struct $name(f64, crate::runtime::const_sized::unitary_operator::ConstSizedUnitaryOperator<2, $type>);
 
             impl $name {

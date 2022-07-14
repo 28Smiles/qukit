@@ -21,7 +21,7 @@ pub(crate)mod swap_root;
 pub(crate)mod phase_root;
 pub(crate)mod c;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub(crate)enum Operator {
     Hadamard(Hadamard),
     PauliX(PauliX),
@@ -68,7 +68,7 @@ pub(crate) mod operator_macro {
     macro_rules! impl_operator {
         ($matrix:ident, $type:ty, $type_r:ty, $name:ident, $rotation_type:ty, 1, $theta:expr, $doc: expr) => {
             #[doc = $doc]
-            #[derive(Copy, Clone, PartialEq)]
+            #[derive(Copy, Clone, PartialEq, Debug)]
             pub(crate)struct $name(crate::runtime::const_sized::unitary_operator::ConstSizedUnitaryOperator<1, $type>);
 
             impl $name {
@@ -128,7 +128,7 @@ pub(crate) mod operator_macro {
 
         ($matrix:ident, $type:ty, $type_r:ty, $name:ident, $rotation_type:ty, 2, $theta:expr, $doc: expr) => {
             #[doc = $doc]
-            #[derive(Copy, Clone, PartialEq)]
+            #[derive(Copy, Clone, PartialEq, Debug)]
             pub(crate)struct $name(crate::runtime::const_sized::unitary_operator::ConstSizedUnitaryOperator<2, $type>);
 
             impl $name {

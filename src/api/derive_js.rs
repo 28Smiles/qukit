@@ -147,9 +147,16 @@ impl GateBuilder {
     #[wasm_bindgen(js_name = intoAlgorithm)]
     pub fn into_algorithm(self) -> Algorithm {
         let ket = Ket::new(self.0).unwrap();
-        let register = Register::new(self.1);
+        let reg = Register::new(self.1);
         let tools = self.2;
-        Algorithm(super::derive::Algorithm(ket, register, tools, 0))
+        Algorithm(super::derive::Algorithm {
+            ket,
+            reg,
+            tools,
+            pos: 0,
+            sub_pos: 0,
+            steps: 1,
+        })
     }
 
     pub fn qbit(&mut self) -> QBit {

@@ -8,14 +8,14 @@ use crate::runtime::unitary::UnitaryOperator;
 use crate::runtime::ket::Ket;
 use crate::runtime::matrix::Matrix;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate)struct Measurement {
     wire: usize,
     basis: MeasurementBasis,
     creg_bit: Option<usize>,
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate)enum MeasurementBasis {
     X, Y, Z
 }
@@ -111,7 +111,6 @@ impl UnitaryOperator for Measurement {
 
 #[cfg(test)]
 mod test {
-    use std::println;
     use super::*;
     use crate::runtime::ket::Ket;
     use crate::runtime::register::Register;

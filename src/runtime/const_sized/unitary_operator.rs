@@ -9,7 +9,7 @@ use crate::runtime::register::Register;
 use crate::runtime::unitary::UnitaryOperator;
 use crate::util::s_cow::SCow;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate)struct ConstSizedUnitaryOperator<const SIZE: usize, T: Sized + Copy + 'static>
     where
         [(); 0x1 << SIZE]:,

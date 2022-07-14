@@ -5,7 +5,7 @@ use crate::util::const_iter::ConstIter;
 use crate::util::one::One;
 use crate::util::s_cow::SCow;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate)struct Controlled<const SIZE: usize, T: Sized + Copy + 'static>(ConstSizedUnitaryOperator<SIZE, T>)
     where
         [(); 0x1 << SIZE]:,;

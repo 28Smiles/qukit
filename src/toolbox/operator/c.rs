@@ -6,7 +6,7 @@ use crate::toolbox::operator::controlled::Controlled;
 use crate::toolbox::parameterized::Parameterized;
 use crate::util::one::One;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate)struct C<
     const SIZE: usize,
     T: Into<ConstSizedUnitaryOperator<{ SIZE - 1 }, V>> + Sized + Copy, V: Copy + Sized + Default + One + 'static

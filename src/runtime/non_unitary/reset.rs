@@ -6,7 +6,7 @@ use crate::runtime::matrix::Matrix;
 use crate::runtime::register::Register;
 use crate::runtime::unitary::UnitaryOperator;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate)struct Reset {
     wire: usize,
     state: bool,

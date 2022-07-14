@@ -19,7 +19,7 @@ use crate::toolbox::rotation::y::RotationY;
 use crate::toolbox::rotation::z::RotationZ;
 use crate::toolbox::Tool;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub(crate)enum Controlled {
     ControlledHadamard(C<2, Hadamard, f64>),
     ControlledPauliX(C<2, PauliX, f64>),

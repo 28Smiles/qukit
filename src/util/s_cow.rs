@@ -1,6 +1,6 @@
 use core::ops::Deref;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub(crate) enum SCow<T: Sized + Copy + 'static> {
     Owned(T),
     Borrowed(&'static T),
