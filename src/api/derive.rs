@@ -33,6 +33,7 @@ use crate::toolbox::rotation::z::RotationZ;
 use crate::toolbox::rotation::hadamard::RotationHadamard;
 use crate::toolbox::rotation::swap::RotationSwap;
 use crate::toolbox::rotation::Rotation;
+use crate::toolbox::rotation::u::RotationU;
 use crate::toolbox::Tool;
 
 #[derive(Clone)]
@@ -105,6 +106,7 @@ impl Algorithm {
                             Rotation::PauliY(o) => o.parameterized(theta).into(),
                             Rotation::PauliZ(o) => o.parameterized(theta).into(),
                             Rotation::Swap(o) => o.parameterized(theta).into(),
+                            Rotation::U(o) => o.parameterized(theta).into(),
                         },
                         Tool::Controlled(o) => match o {
                             Controlled::ControlledHadamard(o) => o.parameterized(theta).into(),
@@ -126,6 +128,7 @@ impl Algorithm {
                             Controlled::ControlledRotationPauliY(o) => o.parameterized(theta).into(),
                             Controlled::ControlledRotationPauliZ(o) => o.parameterized(theta).into(),
                             Controlled::ControlledRotationSwap(o) => o.parameterized(theta).into(),
+                            Controlled::ControlledRotationU(o) => o.parameterized(theta).into(),
                             Controlled::ControlledControlledHadamard(o) => o.parameterized(theta).into(),
                             Controlled::ControlledControlledPauliX(o) => o.parameterized(theta).into(),
                             Controlled::ControlledControlledPauliXRoot(o) => o.parameterized(theta).into(),
@@ -145,6 +148,7 @@ impl Algorithm {
                             Controlled::ControlledControlledRotationPauliY(o) => o.parameterized(theta).into(),
                             Controlled::ControlledControlledRotationPauliZ(o) => o.parameterized(theta).into(),
                             Controlled::ControlledControlledRotationSwap(o) => o.parameterized(theta).into(),
+                            Controlled::ControlledControlledRotationU(o) => o.parameterized(theta).into(),
                         },
                         Tool::Measurement(m) => Tool::Measurement(*m),
                         Tool::Reset(r) => Tool::Reset(*r),
@@ -400,6 +404,36 @@ impl_operator!(@rotation, rotation_y, controlled_rotation_y, controlled_controll
 impl_operator!(@rotation, rotation_z, controlled_rotation_z, controlled_controlled_rotation_z, RotationZ);
 impl_operator!(@rotation, rotation_swap, controlled_rotation_swap, controlled_controlled_rotation_swap, RotationSwap, 2);
 
+#[doc = impl_operator!(@doc, @operator, RotationU)]
+pub fn rotation_u(theta: f64, lambda: f64, phi: f64, qbit: QBit) {
+    qbit.push_col(
+        RotationU::new(theta, lambda, phi, qbit.idx()).into()
+    )
+}
+
+#[doc = impl_operator!(@doc, @operator, RotationU)]
+pub fn controlled_rotation_u(theta: f64, lambda: f64, phi: f64, c_qbit: QBit, qbit: QBit) {
+    qbit.push_col(
+        C::<2, RotationU, _>::new(
+            c_qbit.idx(),
+            RotationU::new(theta, lambda, phi, qbit.idx())
+        ).into()
+    )
+}
+
+#[doc = impl_operator!(@doc, @operator, RotationU)]
+pub fn controlled_controlled_rotation_u(theta: f64, lambda: f64, phi: f64, c_qbit_0: QBit, c_qbit_1: QBit, qbit: QBit) {
+    qbit.push_col(
+        C::<3, C<2, RotationU, _>, _>::new(
+            c_qbit_0.idx(),
+            C::<2, RotationU, _>::new(
+                c_qbit_1.idx(),
+                RotationU::new(theta, lambda, phi, qbit.idx())
+            )
+        ).into()
+    )
+}
+
 pub fn measurement_x(qbit: QBit, bit: Bit) {
     qbit.push_col(Measurement::new(qbit.idx(), Some(MeasurementBasis::X), Some(bit.idx())).into())
 }
@@ -419,7 +453,6 @@ pub fn reset(qbit: QBit) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::println;
 
     #[test]
     fn test_bell() {
@@ -473,7 +506,7 @@ mod tests {
             gate_builder
         });
 
-        let (quantum_register, classical_register) = algorithm.run();
+        let (_quantum_register, classical_register) = algorithm.run();
 
         for (hidden, measured) in hidden.iter().zip(classical_register.state().iter()) {
             assert_eq!(*hidden, *measured);

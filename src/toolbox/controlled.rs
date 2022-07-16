@@ -14,6 +14,7 @@ use crate::toolbox::rotation::pauli_x::RotationPauliX;
 use crate::toolbox::rotation::pauli_y::RotationPauliY;
 use crate::toolbox::rotation::pauli_z::RotationPauliZ;
 use crate::toolbox::rotation::swap::RotationSwap;
+use crate::toolbox::rotation::u::RotationU;
 use crate::toolbox::rotation::x::RotationX;
 use crate::toolbox::rotation::y::RotationY;
 use crate::toolbox::rotation::z::RotationZ;
@@ -41,6 +42,7 @@ pub(crate)enum Controlled {
     ControlledRotationPauliY(C<2, RotationPauliY, Complex>),
     ControlledRotationPauliZ(C<2, RotationPauliZ, Complex>),
     ControlledRotationSwap(C<3, RotationSwap, Complex>),
+    ControlledRotationU(C<2, RotationU, Complex>),
 
     ControlledControlledHadamard(C<3, C<2, Hadamard, f64>, f64>),
     ControlledControlledPauliX(C<3, C<2, PauliX, f64>, f64>),
@@ -62,6 +64,7 @@ pub(crate)enum Controlled {
     ControlledControlledRotationPauliY(C<3, C<2, RotationPauliY, Complex>, Complex>),
     ControlledControlledRotationPauliZ(C<3, C<2, RotationPauliZ, Complex>, Complex>),
     ControlledControlledRotationSwap(C<4, C<3, RotationSwap, Complex>, Complex>),
+    ControlledControlledRotationU(C<3, C<2, RotationU, Complex>, Complex>),
 }
 
 macro_rules! impl_from_trait {
@@ -99,6 +102,7 @@ impl_from_trait!(ControlledRotationPauliX, C<2, RotationPauliX, Complex>);
 impl_from_trait!(ControlledRotationPauliY, C<2, RotationPauliY, Complex>);
 impl_from_trait!(ControlledRotationPauliZ, C<2, RotationPauliZ, Complex>);
 impl_from_trait!(ControlledRotationSwap, C<3, RotationSwap, Complex>);
+impl_from_trait!(ControlledRotationU, C<2, RotationU, Complex>);
 
 impl_from_trait!(ControlledControlledHadamard, C<3, C<2, Hadamard, f64>, f64>);
 impl_from_trait!(ControlledControlledPauliX, C<3, C<2, PauliX, f64>, f64>);
@@ -120,3 +124,4 @@ impl_from_trait!(ControlledControlledRotationPauliX, C<3, C<2, RotationPauliX, C
 impl_from_trait!(ControlledControlledRotationPauliY, C<3, C<2, RotationPauliY, Complex>, Complex>);
 impl_from_trait!(ControlledControlledRotationPauliZ, C<3, C<2, RotationPauliZ, Complex>, Complex>);
 impl_from_trait!(ControlledControlledRotationSwap, C<4, C<3, RotationSwap, Complex>, Complex>);
+impl_from_trait!(ControlledControlledRotationU, C<3, C<2, RotationU, Complex>, Complex>);

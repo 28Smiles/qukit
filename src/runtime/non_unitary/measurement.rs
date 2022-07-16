@@ -152,7 +152,7 @@ mod test {
         let ket = Measurement::new(0, Some(MeasurementBasis::Z), Some(0)).apply(ket, &mut register);
         let ket = Measurement::new(1, Some(MeasurementBasis::Z), Some(1)).apply(ket, &mut register);
         let ket = Measurement::new(2, Some(MeasurementBasis::Z), Some(2)).apply(ket, &mut register);
-        let ket = Measurement::new(3, Some(MeasurementBasis::Z), Some(3)).apply(ket, &mut register);
+        Measurement::new(3, Some(MeasurementBasis::Z), Some(3)).apply(ket, &mut register);
 
         assert_eq!(true, *register.get(0).unwrap());
         assert_eq!(true, *register.get(1).unwrap());

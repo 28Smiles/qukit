@@ -59,6 +59,7 @@ impl UnitaryOperator for Tool {
                     Rotation::PauliY(o) => o.operator().apply(ket, reg),
                     Rotation::PauliZ(o) => o.operator().apply(ket, reg),
                     Rotation::Swap(o) => o.operator().apply(ket, reg),
+                    Rotation::U(o) => o.operator().apply(ket, reg),
                 }
             }
             Tool::Controlled(o) => {
@@ -82,6 +83,7 @@ impl UnitaryOperator for Tool {
                     Controlled::ControlledRotationPauliY(o) => o.operator().apply(ket, reg),
                     Controlled::ControlledRotationPauliZ(o) => o.operator().apply(ket, reg),
                     Controlled::ControlledRotationSwap(o) => o.operator().apply(ket, reg),
+                    Controlled::ControlledRotationU(o) => o.operator().apply(ket, reg),
                     Controlled::ControlledControlledHadamard(o) => o.operator().apply(ket, reg),
                     Controlled::ControlledControlledPauliX(o) => o.operator().apply(ket, reg),
                     Controlled::ControlledControlledPauliXRoot(o) => o.operator().apply(ket, reg),
@@ -101,6 +103,7 @@ impl UnitaryOperator for Tool {
                     Controlled::ControlledControlledRotationPauliY(o) => o.operator().apply(ket, reg),
                     Controlled::ControlledControlledRotationPauliZ(o) => o.operator().apply(ket, reg),
                     Controlled::ControlledControlledRotationSwap(o) => o.operator().apply(ket, reg),
+                    Controlled::ControlledControlledRotationU(o) => o.operator().apply(ket, reg),
                 }
             }
             Tool::Measurement(o) => o.apply(ket, reg),

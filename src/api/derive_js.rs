@@ -30,6 +30,7 @@ use crate::toolbox::rotation::y::RotationY;
 use crate::toolbox::rotation::z::RotationZ;
 use crate::toolbox::rotation::hadamard::RotationHadamard;
 use crate::toolbox::rotation::swap::RotationSwap;
+use crate::toolbox::rotation::u::RotationU;
 use crate::toolbox::Tool;
 
 #[wasm_bindgen]
@@ -447,6 +448,68 @@ macro_rules! impl_operator {
         }
     };
 
+    (@rotation3, $name:ident, $cname:ident, $ccname:ident, $type:ty) => {
+        #[wasm_bindgen]
+        #[doc = impl_operator!(@doc, @operator, $type)]
+        pub fn $name(theta: f64, lambda: f64, phi: f64, qbit: &QBit) {
+            qbit.push_col(<$type>::new(theta, lambda, phi, qbit.idx()).into())
+        }
+
+        #[wasm_bindgen]
+        #[doc = impl_operator!(@doc, @controlled, $type)]
+        pub fn $cname(theta: f64, lambda: f64, phi: f64, c_qbit: &QBit, t_qbit: &QBit) {
+            c_qbit.push_col(C::<2, $type, _>::new(c_qbit.idx(), <$type>::new(theta, lambda, phi, t_qbit.idx())).into())
+        }
+
+        #[wasm_bindgen]
+        #[doc = impl_operator!(@doc, @controlledcontrolled, $type)]
+        pub fn $ccname(theta: f64, lambda: f64, phi: f64, c_qbit_0: &QBit, c_qbit_1: &QBit, t_qbit: &QBit) {
+            c_qbit_0.push_col(
+                C::<3, C<2, $type, _>, _>::new(
+                    c_qbit_0.0,
+                    C::<2, $type, _>::new(c_qbit_1.idx(), <$type>::new(theta, lambda, phi, t_qbit.idx()))
+                ).into()
+            )
+        }
+
+        paste! {
+            #[wasm_bindgen]
+            #[doc = impl_operator!(@doc, @operator, $type)]
+            pub fn [<$name _same_step>](theta: f64, lambda: f64, phi: f64, qbit: &QBit) {
+                qbit.push(<$type>::new(theta, lambda, phi, qbit.idx()).into())
+            }
+
+            #[wasm_bindgen]
+            #[doc = impl_operator!(@doc, @controlled, $type)]
+            pub fn [<$cname _same_step>](theta: f64, lambda: f64, phi: f64, c_qbit: &QBit, t_qbit: &QBit) {
+                c_qbit.push(C::<2, $type, _>::new(c_qbit.idx(), <$type>::new(theta, lambda, phi, t_qbit.idx())).into())
+            }
+
+            #[wasm_bindgen]
+            #[doc = impl_operator!(@doc, @controlledcontrolled, $type)]
+            pub fn [<$ccname _same_step>](theta: f64, lambda: f64, phi: f64, c_qbit_0: &QBit, c_qbit_1: &QBit, t_qbit: &QBit) {
+                c_qbit_0.push(
+                    C::<3, C<2, $type, _>, _>::new(
+                        c_qbit_0.0,
+                        C::<2, $type, _>::new(c_qbit_1.idx(), <$type>::new(theta, lambda, phi, t_qbit.idx()))
+                    ).into()
+                )
+            }
+
+            #[wasm_bindgen]
+            #[doc = impl_operator!(@doc, @operator, $type)]
+            pub fn [<$name _same_step_classically_controlled>](theta: f64, lambda: f64, phi: f64, qbit: &QBit, bit: &Bit) {
+                qbit.push(<$type>::new_classically_controlled(theta, lambda, phi, qbit.idx(), bit.idx()).into())
+            }
+
+            #[wasm_bindgen]
+            #[doc = impl_operator!(@doc, @operator, $type)]
+            pub fn [<$name _classically_controlled>](theta: f64, lambda: f64, phi: f64, qbit: &QBit, bit: &Bit) {
+                qbit.push_col(<$type>::new_classically_controlled(theta, lambda, phi, qbit.idx(), bit.idx()).into())
+            }
+        }
+    };
+
     (@doc, @operator, $type:ty) => {
         concat!(
             "Applies the [",
@@ -498,6 +561,8 @@ impl_operator!(@rotation, rotation_x, controlled_rotation_x, controlled_controll
 impl_operator!(@rotation, rotation_y, controlled_rotation_y, controlled_controlled_rotation_y, RotationY);
 impl_operator!(@rotation, rotation_z, controlled_rotation_z, controlled_controlled_rotation_z, RotationZ);
 impl_operator!(@rotation, rotation_swap, controlled_rotation_swap, controlled_controlled_rotation_swap, RotationSwap, 2);
+
+impl_operator!(@rotation3, rotation_u, controlled_rotation_u, controlled_controlled_rotation_u, RotationU);
 
 #[wasm_bindgen]
 pub fn measurement_x(qbit: &QBit, bit: &Bit) {

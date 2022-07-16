@@ -333,7 +333,6 @@ impl<const SIZE: usize, T: Sized + Copy + float_cmp::ApproxEq<Margin = float_cmp
 
 #[cfg(test)]
 mod test {
-    use std::println;
     use super::*;
     use float_cmp::assert_approx_eq;
 

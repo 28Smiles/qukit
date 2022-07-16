@@ -4,7 +4,7 @@ fn main() {
     let hidden = Vec::from([
         true, true, false, true, false,
     ]);
-    let mut algorithm = Algorithm::new(|gate_builder| {
+    let algorithm = Algorithm::new(|gate_builder| {
         let qbits = (0..hidden.len()).map(|_| gate_builder.qbit()).collect::<Vec<_>>();
         let bits = (0..hidden.len()).map(|_| gate_builder.bit()).collect::<Vec<_>>();
         let target = gate_builder.qbit();

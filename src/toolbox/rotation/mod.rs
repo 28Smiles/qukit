@@ -3,6 +3,7 @@ use crate::toolbox::rotation::pauli_x::RotationPauliX;
 use crate::toolbox::rotation::pauli_y::RotationPauliY;
 use crate::toolbox::rotation::pauli_z::RotationPauliZ;
 use crate::toolbox::rotation::swap::RotationSwap;
+use crate::toolbox::rotation::u::RotationU;
 use crate::toolbox::rotation::x::RotationX;
 use crate::toolbox::rotation::y::RotationY;
 use crate::toolbox::rotation::z::RotationZ;
@@ -16,6 +17,7 @@ pub(crate)mod pauli_y;
 pub(crate)mod pauli_z;
 pub(crate)mod hadamard;
 pub(crate)mod swap;
+pub(crate)mod u;
 
 #[derive(Copy, Clone, Debug)]
 pub(crate)enum Rotation {
@@ -27,6 +29,7 @@ pub(crate)enum Rotation {
     PauliY(RotationPauliY),
     PauliZ(RotationPauliZ),
     Swap(RotationSwap),
+    U(RotationU),
 }
 
 macro_rules! impl_from_trait {
@@ -52,6 +55,7 @@ impl_from_trait!(PauliX, RotationPauliX);
 impl_from_trait!(PauliY, RotationPauliY);
 impl_from_trait!(PauliZ, RotationPauliZ);
 impl_from_trait!(Swap, RotationSwap);
+impl_from_trait!(U, RotationU);
 
 pub(crate) mod rotation_macro {
     #[macro_export]
