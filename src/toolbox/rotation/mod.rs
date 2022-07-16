@@ -88,7 +88,7 @@ pub(crate) mod rotation_macro {
                     if let Some(classical_control) = self.classical_control() {
                         <$name>::new_classically_controlled(self.0 / core::f64::consts::PI * theta, self.wires()[0], classical_control)
                     } else {
-                        <$name>::new(theta, self.wires()[0])
+                        <$name>::new(self.0 / core::f64::consts::PI * theta, self.wires()[0])
                     }
                 }
             }
@@ -140,7 +140,7 @@ pub(crate) mod rotation_macro {
                     if let Some(classical_control) = self.classical_control() {
                         <$name>::new_classically_controlled(self.0 / core::f64::consts::PI * theta, self.wires()[0], self.wires()[1], classical_control)
                     } else {
-                        <$name>::new(theta, self.wires()[0], self.wires()[1])
+                        <$name>::new(self.0 / core::f64::consts::PI * theta, self.wires()[0], self.wires()[1])
                     }
                 }
             }
