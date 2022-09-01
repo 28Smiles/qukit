@@ -510,19 +510,18 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tsify"
-version = "0.3.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd51deb9186c018de890b02887411d12b32fc84d954464c16c40913730160d14"
+checksum = "bb7a9ebe7f56b5d1ee945ef7ec8dd5a244dfe076b2205df9ecc3e5a63d61ee9e"
 dependencies = [
  "tsify-macros",
- "wasm-bindgen",
 ]
 
 [[package]]
 name = "tsify-macros"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9cef9fb1445892cfd74e03698917a558b28445960d6331eec12eac54caa88a79"
+checksum = "2568c07aeb04d1201554a80377c9729e551c8bfaf9dbb63e71bfa980f83f4119"
 dependencies = [
  "darling",
  "proc-macro2",
